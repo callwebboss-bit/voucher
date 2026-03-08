@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta property="og:title" content="🎁 יש לך מכתב מיוחד">
+<meta property="og:description" content="מכתב הקדשה ושובר מתנה – יקיר כהן הפקות">
+<meta property="og:image" content="https://lh3.googleusercontent.com/sitesv/APaQ0STQv7BhuANWyTWJl9yCKqozK2QUJALzupkij4nzjDE9RTMB1jPnUbPDcQ2wxzXLQ53nCfVtR2_2luuJ9WIESUmASqhKHRkbjlImDF4FhO_unTvLFFeYXrKBPliD8f0Bt7sgM6WIBaY8vqvEgOwlaztpJDy4rzswM-wM-GzopxTSk5Vk8VPRTWyPFoA=w16383">
+<meta property="og:type" content="website">
+<title>יקיר כהן | שובר מתנה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Frank+Ruhl+Libre:wght@400;700;900&family=Noto+Serif+Hebrew:wght@300;400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+/* ══════════════════════════════════════════════
+   TOKENS
+══════════════════════════════════════════════ */
+:root{
+  --bg:     #fafaf8;
+  --white:  #ffffff;
+  --ink:    #1a1a1a;
+  --red:    #c8102e;
+  --red2:   #9e0d23;
+  --mid:    #6a6a6a;
+  --silver: #9a9a9a;
+  --ash:    #d0d0d0;
+  --mist:   #e8e8e8;
+  --fog:    #f4f4f4;
+  --r:10px; --r2:16px; --r3:24px;
+  --sh: 0 2px 12px rgba(0,0,0,.06), 0 8px 32px rgba(0,0,0,.07);
+  --sh2:0 4px 20px rgba(0,0,0,.1), 0 20px 60px rgba(0,0,0,.08);
+  --shr:0 4px 20px rgba(200,16,46,.2);
+  --tr:all .28s cubic-bezier(.4,0,.2,1);
+  --ff:'Heebo',sans-serif;
+  --ffs:'Frank Ruhl Libre',serif;
+  --ffh:'Noto Serif Hebrew',serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:var(--ff);background:var(--bg);color:var(--ink);
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:100vh
+}
+::placeholder{color:var(--ash)}
+
+/* ══════════════════════════════════════════════
+   AMBIENT CANVAS BACKGROUND
+══════════════════════════════════════════════ */
+#ambientCanvas{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  opacity:.55
+}
+
+/* ══════════════════════════════════════════════
+   PASSWORD GATE
+══════════════════════════════════════════════ */
+#pwdGate{
+  position:fixed;inset:0;z-index:500;
+  background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:20px;padding:40px 20px;
+  animation:fadeIn .5s ease
+}
+#pwdGate.gone{display:none}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.pg-logo{height:48px}
+.pg-kicker{font-size:.62rem;letter-spacing:3.5px;text-transform:uppercase;color:var(--silver);font-weight:700}
+.pg-title{font-family:var(--ffs);font-size:clamp(1.7rem,5vw,2.6rem);font-weight:900;line-height:1.1;text-align:center;color:var(--ink)}
+.pg-sub{font-size:.86rem;color:var(--mid);text-align:center;max-width:280px;line-height:1.65}
+.pg-rule{width:40px;height:3px;background:var(--red);border-radius:2px}
+.pg-form{display:flex;gap:8px;max-width:300px;width:100%}
+.pg-input{
+  flex:1;border:1.5px solid var(--mist);border-radius:var(--r);
+  background:var(--white);color:var(--ink);font-family:var(--ff);
+  font-size:1rem;padding:11px 14px;direction:ltr;text-align:center;
+  letter-spacing:4px;transition:var(--tr)}
+.pg-input:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(200,16,46,.1)}
+.pg-input::placeholder{letter-spacing:1px;color:var(--ash)}
+.pg-btn{
+  background:var(--ink);border:none;border-radius:var(--r);
+  color:var(--white);font-family:var(--ff);font-weight:700;
+  font-size:.9rem;padding:11px 20px;cursor:pointer;transition:var(--tr)}
+.pg-btn:hover{background:var(--red);transform:translateY(-1px)}
+.pg-err{font-size:.76rem;color:var(--red);display:none;text-align:center}
+.pg-err.show{display:block}
+.pg-hint{font-size:.68rem;color:var(--ash);text-align:center}
+
+/* ══════════════════════════════════════════════
+   MAIN CONTENT WRAPPER
+══════════════════════════════════════════════ */
+#content{position:relative;z-index:1;display:none}
+#content.on{display:block}
+
+/* ══════════════════════════════════════════════
+   GATE SCREEN (open gift)
+══════════════════════════════════════════════ */
+#gateScreen{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:60px 24px;gap:20px;text-align:center;
+  animation:fadeIn .7s ease
+}
+#gateScreen.gone{display:none}
+.gs-logo{height:50px;margin-bottom:6px}
+.gs-kicker{font-size:.62rem;letter-spacing:3.5px;text-transform:uppercase;color:var(--silver);font-weight:700}
+.gs-title{font-family:var(--ffs);font-size:clamp(2rem,5vw,3.2rem);font-weight:900;line-height:1.1;color:var(--ink)}
+.gs-rule{width:44px;height:3px;background:var(--red);border-radius:2px}
+.gs-sender{
+  background:var(--white);border:1.5px solid var(--mist);
+  border-radius:100px;padding:8px 20px;
+  font-size:.82rem;color:var(--mid);display:flex;align-items:center;gap:6px}
+.gs-sender strong{color:var(--ink);font-weight:700}
+.gs-sub{font-size:.92rem;color:var(--mid);max-width:280px;line-height:1.7}
+
+/* Console-style open button */
+.gs-open-btn{
+  position:relative;overflow:hidden;
+  padding:17px 50px;border-radius:var(--r2);border:none;
+  background:linear-gradient(180deg,#222,#0a0a0a);
+  color:var(--white);font-family:var(--ff);font-size:1.05rem;font-weight:700;
+  cursor:pointer;letter-spacing:.3px;
+  box-shadow:0 3px 0 #000,0 8px 28px rgba(0,0,0,.25),
+             inset 0 1px 0 rgba(255,255,255,.09);
+  transition:var(--tr);display:flex;align-items:center;gap:12px}
+.gs-open-btn::before{content:'';position:absolute;top:0;left:0;right:0;height:44%;
+  background:rgba(255,255,255,.045);pointer-events:none}
+.gs-open-btn:hover{
+  background:linear-gradient(180deg,#2e2e2e,#181818);
+  transform:translateY(-2px);
+  box-shadow:0 5px 0 #000,0 12px 32px rgba(0,0,0,.3),
+             inset 0 1px 0 rgba(255,255,255,.11)}
+.gs-open-btn:active{transform:translateY(1px);
+  box-shadow:0 1px 0 #000,0 3px 12px rgba(0,0,0,.2)}
+.gs-arrow{font-size:1.1rem;transition:transform .2s}
+.gs-open-btn:hover .gs-arrow{transform:translateX(-4px)}
+.gs-fine{font-size:.65rem;color:var(--ash)}
+
+/* ══════════════════════════════════════════════
+   LETTER PAGE
+══════════════════════════════════════════════ */
+#letterPage{
+  max-width:700px;margin:0 auto;padding:60px 20px 100px;
+  display:none;opacity:0;transform:translateY(22px);
+  transition:opacity .7s ease,transform .7s ease}
+#letterPage.vis{display:block}
+#letterPage.revealed{opacity:1;transform:translateY(0)}
+
+/* ── Header ── */
+.ltr-hdr{text-align:center;margin-bottom:48px}
+.ltr-hdr-logo{height:44px;margin-bottom:18px}
+.ltr-hdr-date{font-size:.7rem;color:var(--silver);letter-spacing:.5px}
+.ltr-hdr-loc{font-size:.7rem;color:var(--silver)}
+
+/* ── Body ── */
+.ltr-salutation{font-family:var(--ffh);font-size:1.22rem;font-weight:700;color:var(--ink);margin-bottom:22px;line-height:1.5}
+.ltr-text{
+  font-family:var(--ff);font-size:1.03rem;font-weight:400;
+  line-height:1.95;color:var(--ink);text-align:right;
+  white-space:pre-wrap;word-break:break-word;margin-bottom:32px;
+  border-right:3px solid var(--red);padding-right:18px}
+
+/* STT Bubble display */
+.stt-bubble{
+  background:var(--white);border:1.5px solid var(--mist);border-radius:var(--r2);
+  border-bottom-right-radius:4px;padding:16px 20px;margin-bottom:24px;
+  position:relative;box-shadow:var(--sh);
+  font-size:.92rem;line-height:1.8;color:var(--ink);font-style:italic}
+.stt-bubble::before{
+  content:'🎤';position:absolute;top:-12px;right:16px;
+  background:var(--red);border-radius:50%;width:24px;height:24px;
+  display:flex;align-items:center;justify-content:center;font-size:.7rem}
+.stt-bubble-label{font-size:.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--silver);margin-bottom:8px;font-weight:700}
+
+/* ── Separator ── */
+.sep{display:flex;align-items:center;gap:14px;margin:32px 0}
+.sep::before,.sep::after{content:'';flex:1;height:1px;background:var(--mist)}
+.sep span{font-size:.58rem;letter-spacing:3px;text-transform:uppercase;color:var(--ash)}
+
+/* ── Closing ── */
+.ltr-close{margin:32px 0 44px}
+.ltr-close-by{font-size:.8rem;color:var(--mid);margin-bottom:6px}
+.ltr-sig-svg{margin:8px 0 4px;opacity:.28}
+.sig-path{fill:none;stroke:var(--ink);stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
+.ltr-sig-name{font-family:var(--ffh);font-size:1.2rem;font-weight:700;color:var(--ink)}
+.ltr-sig-role{font-size:.72rem;color:var(--silver);margin-top:2px}
+
+/* ── Contributors ── */
+.contribs-block{margin-bottom:28px}
+.contribs-label{font-size:.68rem;color:var(--silver);letter-spacing:.5px;margin-bottom:8px}
+.contribs-list{display:flex;flex-wrap:wrap;gap:6px}
+.contrib-pill{background:var(--fog);border:1px solid var(--mist);border-radius:100px;
+  padding:4px 12px;font-size:.75rem;color:var(--ink)}
+
+/* ══════════════════════════════════════════════
+   VOUCHER CARD
+══════════════════════════════════════════════ */
+.voucher-card{
+  border:5px solid var(--ink);border-radius:var(--r2);
+  overflow:hidden;position:relative;
+  background:var(--white);box-shadow:var(--sh2);
+  margin:0 0 40px;page-break-inside:avoid}
+.vc-hdr{
+  background:var(--ink);padding:13px 24px;
+  display:flex;align-items:center;justify-content:space-between}
+.vc-hdr img{height:26px;filter:brightness(0) invert(1)}
+.vc-badge{
+  font-size:.5rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
+  color:rgba(255,255,255,.38);border:1px solid rgba(255,255,255,.18);
+  padding:2px 8px;border-radius:100px}
+.vc-body{padding:20px 24px 24px}
+.vc-pkg{font-family:var(--ffs);font-size:1.55rem;font-weight:900;color:var(--ink);margin-bottom:2px}
+.vc-price{font-size:1rem;font-weight:300;color:var(--red)}
+.vc-price.hidden{display:none}
+.vc-desc{font-size:.74rem;color:var(--mid);margin-top:7px;line-height:1.55}
+.vc-divider{border:none;border-top:1px solid var(--mist);margin:14px 0}
+.vc-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px}
+.vc-mi label{font-size:.55rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--silver);display:block;margin-bottom:2px}
+.vc-mi span{font-size:.84rem;font-weight:700;color:var(--ink)}
+.vc-loc{margin-top:12px;font-size:.74rem;color:var(--mid)}
+.vc-loc a{color:var(--red);font-weight:600}
+.vc-footer{
+  background:var(--fog);border-top:1px solid var(--mist);
+  padding:8px 24px;font-size:.46rem;color:var(--silver);
+  display:flex;align-items:center;justify-content:space-between}
+.vc-tooltip{position:relative;cursor:help;text-decoration:underline dotted}
+.vc-tooltip::after{
+  content:attr(data-tip);position:absolute;bottom:100%;right:0;
+  background:var(--ink);color:#fff;font-size:.6rem;padding:6px 10px;
+  border-radius:6px;white-space:nowrap;pointer-events:none;
+  opacity:0;transform:translateY(4px);transition:var(--tr);z-index:10;margin-bottom:4px}
+.vc-tooltip:hover::after{opacity:1;transform:translateY(0)}
+/* red top stripe */
+.voucher-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--red);z-index:2}
+
+/* ══════════════════════════════════════════════
+   HYPE COUNTER
+══════════════════════════════════════════════ */
+.hype-block{
+  margin:28px 0;background:var(--white);
+  border-radius:var(--r2);padding:22px 26px;
+  border-right:4px solid var(--red);
+  box-shadow:var(--sh);position:relative;overflow:hidden}
+.hype-block::after{content:'';position:absolute;top:-20px;left:-20px;
+  width:140px;height:140px;border-radius:50%;
+  background:rgba(200,16,46,.04);pointer-events:none}
+.hype-num{font-family:var(--ffs);font-size:3rem;font-weight:900;color:var(--ink);line-height:1}
+.hype-unit{font-size:.74rem;color:var(--mid);letter-spacing:.5px;margin-top:2px}
+.hype-msg{font-size:.96rem;color:var(--ink);margin-top:10px;line-height:1.65;font-style:italic}
+.hype-track{height:4px;background:var(--mist);border-radius:2px;margin-top:14px;overflow:hidden}
+.hype-fill{height:100%;background:var(--red);border-radius:2px;transition:width 1.5s .4s ease}
+
+/* ══════════════════════════════════════════════
+   AUDIO PLAYER
+══════════════════════════════════════════════ */
+.audio-block{
+  margin:28px 0;background:var(--white);border-radius:var(--r2);
+  overflow:hidden;border:1.5px solid var(--mist);box-shadow:var(--sh)}
+.ap-topbar{
+  background:var(--ink);padding:9px 16px;
+  display:flex;align-items:center;gap:10px}
+.ap-label{font-size:.56rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.45)}
+.ap-wave{display:flex;align-items:flex-end;gap:2px;height:14px;margin-right:auto}
+.ap-wv{width:2px;background:rgba(200,16,46,.7);border-radius:1px;animation:apwv .9s ease-in-out infinite alternate}
+@keyframes apwv{from{transform:scaleY(.15)}to{transform:scaleY(1)}}
+.ap-wv.paused{animation-play-state:paused}
+.ap-body{padding:14px 16px}
+.ap-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+/* Console play button */
+.ap-play{
+  width:40px;height:40px;border-radius:6px;flex-shrink:0;border:none;cursor:pointer;
+  background:linear-gradient(180deg,#256638,#1a4a28);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 6px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.1);
+  transition:var(--tr)}
+.ap-play:hover{background:linear-gradient(180deg,#2f8048,#226035);transform:translateY(-1px)}
+.ap-play:active{transform:translateY(1px)}
+.ap-play svg{width:14px;height:14px;fill:#7fdd9a}
+.ap-info .ap-tname{font-size:.86rem;font-weight:700;color:var(--ink)}
+.ap-info .ap-artist{font-size:.68rem;color:var(--mid);margin-top:1px}
+.ap-progress{display:flex;align-items:center;gap:10px}
+.ap-track{flex:1;height:4px;background:var(--mist);border-radius:2px;cursor:pointer;position:relative}
+.ap-fill{height:100%;background:var(--red);border-radius:2px;width:0%;transition:width .4s linear;pointer-events:none}
+.ap-time{font-size:.6rem;color:var(--silver);white-space:nowrap;font-weight:600;letter-spacing:.5px}
+audio#rxAudio{display:none}
+
+/* ══════════════════════════════════════════════
+   CHECKLIST WITH TABS
+══════════════════════════════════════════════ */
+.cl-block{margin:28px 0;background:var(--white);border-radius:var(--r2);
+  overflow:hidden;border:1.5px solid var(--mist);box-shadow:var(--sh)}
+.cl-tabs{display:flex;border-bottom:1px solid var(--mist)}
+.cl-tab{
+  flex:1;padding:11px 8px;text-align:center;cursor:pointer;
+  font-size:.74rem;font-weight:700;color:var(--silver);
+  border-bottom:2px solid transparent;margin-bottom:-1px;transition:var(--tr)}
+.cl-tab:hover{color:var(--ink)}
+.cl-tab.on{color:var(--red);border-bottom-color:var(--red)}
+.cl-panel{display:none;padding:4px 0 4px}
+.cl-panel.on{display:block}
+.cl-item{
+  display:flex;align-items:flex-start;gap:12px;padding:12px 18px;
+  border-bottom:1px solid var(--mist);cursor:pointer;transition:var(--tr)}
+.cl-item:last-child{border-bottom:none}
+.cl-item:hover{background:var(--fog)}
+.cl-box{
+  width:20px;height:20px;border-radius:5px;border:2px solid var(--ash);
+  flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;
+  transition:var(--tr)}
+.cl-item.done .cl-box{background:var(--red);border-color:var(--red)}
+.cl-tick{font-size:.6rem;color:#fff;font-weight:900;opacity:0;transition:opacity .2s}
+.cl-item.done .cl-tick{opacity:1}
+.cl-txt h5{font-size:.88rem;font-weight:700;color:var(--ink);transition:var(--tr);line-height:1.3}
+.cl-txt p{font-size:.72rem;color:var(--mid);margin-top:2px;line-height:1.5}
+.cl-item.done .cl-txt h5{text-decoration:line-through;opacity:.38}
+/* Progress bar inside checklist */
+.cl-progress{padding:12px 18px 14px;border-top:1px solid var(--mist)}
+.cl-prog-track{height:3px;background:var(--mist);border-radius:2px;margin-top:6px}
+.cl-prog-fill{height:100%;background:var(--red);border-radius:2px;transition:width .4s ease}
+.cl-prog-label{font-size:.62rem;color:var(--mid);display:flex;justify-content:space-between}
+
+/* ══════════════════════════════════════════════
+   INSTAGRAM CTA
+══════════════════════════════════════════════ */
+.ig-card{
+  display:flex;align-items:center;gap:14px;padding:16px 20px;
+  background:var(--white);border:1.5px solid var(--mist);border-radius:var(--r2);
+  text-decoration:none;margin:28px 0;transition:var(--tr);cursor:pointer}
+.ig-card:hover{border-color:var(--red);box-shadow:var(--shr);transform:translateY(-1px)}
+.ig-icon{width:44px;height:44px;border-radius:10px;background:var(--red);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.ig-icon svg{width:22px;height:22px;fill:#fff}
+.ig-text h5{font-size:.9rem;font-weight:700;color:var(--ink)}
+.ig-text p{font-size:.72rem;color:var(--mid);margin-top:2px}
+.ig-arrow{margin-right:auto;color:var(--red);font-size:1.2rem}
+
+/* ══════════════════════════════════════════════
+   WHATSAPP CTA
+══════════════════════════════════════════════ */
+.wa-cta{
+  display:flex;align-items:center;gap:14px;padding:17px 22px;
+  background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:var(--r2);
+  text-decoration:none;margin:20px 0;transition:var(--tr);cursor:pointer}
+.wa-cta:hover{border-color:#25d366;box-shadow:0 4px 20px rgba(37,211,102,.18);transform:translateY(-1px)}
+.wa-icon{width:44px;height:44px;border-radius:10px;background:#25d366;
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+.wa-text h5{font-size:.9rem;font-weight:700;color:var(--ink)}
+.wa-text p{font-size:.72rem;color:#16a34a;margin-top:2px}
+.wa-arrow{margin-right:auto;color:#25d366;font-size:1.2rem}
+
+/* ══════════════════════════════════════════════
+   LOCATION CARD
+══════════════════════════════════════════════ */
+.loc-card{
+  background:var(--fog);border-radius:var(--r2);padding:18px 22px;margin:28px 0}
+.loc-card h4{font-size:.6rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--red);margin-bottom:10px}
+.loc-card p{font-size:.88rem;color:var(--ink);line-height:1.65}
+.loc-card a{color:var(--red);font-weight:600}
+
+/* ══════════════════════════════════════════════
+   POST-SESSION GALLERY
+══════════════════════════════════════════════ */
+.gal-section{margin-top:44px}
+.gal-hdr{font-size:.6rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:16px}
+.gal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.gal-img{border-radius:var(--r2);overflow:hidden;border:1px solid var(--mist);
+  aspect-ratio:4/3;background:var(--fog);display:flex;align-items:center;justify-content:center}
+.gal-img img{width:100%;height:100%;object-fit:cover;display:block}
+.gal-audio{grid-column:1/-1;background:var(--fog);border-radius:var(--r2);padding:14px 16px;border:1px solid var(--mist)}
+.gal-audio label{font-size:.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--red);display:block;margin-bottom:8px}
+.gal-audio audio{width:100%;height:36px}
+.gal-orig{grid-column:1/-1;background:var(--white);border:1.5px solid var(--mist);
+  border-radius:var(--r2);padding:18px 20px}
+.gal-orig label{font-size:.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--silver);display:block;margin-bottom:10px}
+.gal-orig p{font-size:.84rem;color:var(--mid);line-height:1.8;font-style:italic;white-space:pre-wrap}
+
+/* ══════════════════════════════════════════════
+   BOTTOM ACTIONS
+══════════════════════════════════════════════ */
+.bottom-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:44px;padding-top:32px;border-top:1px solid var(--mist)}
+/* Fader buttons (same as admin) */
+.fb{
+  position:relative;overflow:hidden;
+  padding:10px 16px;border-radius:6px;border:none;cursor:pointer;
+  font-family:var(--ff);font-size:.76rem;font-weight:700;letter-spacing:.3px;
+  transition:var(--tr);display:flex;align-items:center;gap:6px}
+.fb::before{content:'';position:absolute;top:0;left:0;right:0;height:42%;
+  background:rgba(255,255,255,.055);pointer-events:none}
+.fb::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:rgba(0,0,0,.35);pointer-events:none}
+.fb:active{transform:translateY(1px)!important}
+.fb-w{background:linear-gradient(180deg,#323232,#1e1e1e);color:#ccc;
+  box-shadow:0 3px 8px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.09)}
+.fb-w:hover{background:linear-gradient(180deg,#424242,#282828);transform:translateY(-1px)}
+.fb-a{background:linear-gradient(180deg,#7a5a10,#5a3e06);color:#ffd97f;
+  box-shadow:0 3px 8px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.06)}
+.fb-a:hover{background:linear-gradient(180deg,#9a7418,#7a520a);transform:translateY(-1px)}
+.led{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.lg{background:#7fdd9a;box-shadow:0 0 5px #7fdd9a}
+.la{background:#ffd97f;box-shadow:0 0 5px #ffd97f}
+
+/* ══════════════════════════════════════════════
+   EMBEDDED MODE (Google Sites)
+══════════════════════════════════════════════ */
+body.embedded #gateScreen{min-height:80vh}
+body.embedded #letterPage{padding-top:30px}
+
+/* ══════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════ */
+.toast{
+  position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--ink);border-radius:100px;padding:10px 22px;
+  color:#fff;font-size:.78rem;font-weight:600;z-index:9999;
+  transition:transform .4s cubic-bezier(.4,0,.2,1);white-space:nowrap;
+  box-shadow:0 4px 20px rgba(0,0,0,.2);pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ══════════════════════════════════════════════
+   PRINT
+══════════════════════════════════════════════ */
+@media print{
+  @page{size:A4;margin:14mm}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  body{background:#fff!important}
+  #ambientCanvas,#pwdGate,#gateScreen,
+  .hype-block,.audio-block,.cl-block,.ig-card,.wa-cta,.loc-card,
+  .gal-section,.bottom-actions,.toast{display:none!important}
+  #content{display:block!important}
+  #letterPage{display:block!important;opacity:1!important;transform:none!important;padding:0!important;max-width:100%!important}
+  .voucher-card{box-shadow:none!important;page-break-inside:avoid}
+}
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════ */
+@media(max-width:500px){
+  #letterPage{padding:40px 14px 80px}
+  .vc-body{padding:14px 16px 18px}
+  .vc-hdr{padding:11px 16px}
+  .ltr-text{font-size:.96rem}
+  .vc-meta{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ AMBIENT CANVAS ═══════════ -->
+<canvas id="ambientCanvas"></canvas>
+
+<!-- ═══════════ PASSWORD GATE ═══════════ -->
+<div id="pwdGate">
+  <img class="pg-logo"
+    src="https://lh3.googleusercontent.com/sitesv/APaQ0STQv7BhuANWyTWJl9yCKqozK2QUJALzupkij4nzjDE9RTMB1jPnUbPDcQ2wxzXLQ53nCfVtR2_2luuJ9WIESUmASqhKHRkbjlImDF4FhO_unTvLFFeYXrKBPliD8f0Bt7sgM6WIBaY8vqvEgOwlaztpJDy4rzswM-wM-GzopxTSk5Vk8VPRTWyPFoA=w16383"
+    alt="יקיר כהן" onerror="this.style.opacity='.3'">
+  <div class="pg-kicker">יקיר כהן הפקות</div>
+  <h1 class="pg-title">יש לך<br>מכתב מיוחד</h1>
+  <div class="pg-rule"></div>
+  <p class="pg-sub">יקיר שלח לך קוד גישה - הזן אותו כאן:</p>
+  <div class="pg-form">
+    <input class="pg-input" type="text" id="pwdInput" placeholder="XXX-2026-XXX"
+      autocomplete="off" autocapitalize="characters"
+      onkeydown="if(event.key==='Enter')checkPwd()">
+    <button class="pg-btn" onclick="checkPwd()">→</button>
+  </div>
+  <div class="pg-err" id="pgErr">הקוד לא נכון - בדוק שוב עם מי ששלח לך</div>
+  <div class="pg-hint">הקוד נראה כך: NOY-2026-K4X</div>
+</div>
+
+<!-- ═══════════ MAIN CONTENT ═══════════ -->
+<div id="content">
+
+  <!-- GATE SCREEN -->
+  <div id="gateScreen">
+    <img class="gs-logo"
+      src="https://lh3.googleusercontent.com/sitesv/APaQ0STQv7BhuANWyTWJl9yCKqozK2QUJALzupkij4nzjDE9RTMB1jPnUbPDcQ2wxzXLQ53nCfVtR2_2luuJ9WIESUmASqhKHRkbjlImDF4FhO_unTvLFFeYXrKBPliD8f0Bt7sgM6WIBaY8vqvEgOwlaztpJDy4rzswM-wM-GzopxTSk5Vk8VPRTWyPFoA=w16383"
+      alt="" onerror="this.style.display='none'">
+    <div class="gs-kicker">יקיר כהן הפקות</div>
+    <h1 class="gs-title">יש לך<br>מכתב מיוחד</h1>
+    <div class="gs-rule"></div>
+    <div class="gs-sender" id="gsSenderBadge" style="display:none">
+      נשלח על ידי: <strong id="gsSenderName">-</strong>
+    </div>
+    <p class="gs-sub">מישהו שאוהב אותך שלח לך דבר מה שלא תשכח לעולם</p>
+    <button class="gs-open-btn" onclick="revealLetter()">
+      פתח את המכתב <span class="gs-arrow">←</span>
+    </button>
+    <p class="gs-fine">לחץ כדי לגלות</p>
+  </div>
+
+  <!-- LETTER PAGE -->
+  <div id="letterPage">
+
+    <!-- Header -->
+    <div class="ltr-hdr">
+      <img class="ltr-hdr-logo"
+        src="https://lh3.googleusercontent.com/sitesv/APaQ0STQv7BhuANWyTWJl9yCKqozK2QUJALzupkij4nzjDE9RTMB1jPnUbPDcQ2wxzXLQ53nCfVtR2_2luuJ9WIESUmASqhKHRkbjlImDF4FhO_unTvLFFeYXrKBPliD8f0Bt7sgM6WIBaY8vqvEgOwlaztpJDy4rzswM-wM-GzopxTSk5Vk8VPRTWyPFoA=w16383"
+        alt="יקיר כהן" onerror="this.style.display='none'">
+      <div class="ltr-hdr-date" id="rxDate"></div>
+      <div class="ltr-hdr-loc" id="rxLoc"></div>
+    </div>
+
+    <!-- Salutation -->
+    <div class="ltr-salutation" id="rxSalutation"></div>
+
+    <!-- STT Bubble (shown only if message came from STT) -->
+    <div class="stt-bubble" id="sttBubble" style="display:none">
+      <div class="stt-bubble-label">ברכה שהוקלטה בקול</div>
+      <div id="sttBubbleText"></div>
+    </div>
+
+    <!-- Regular letter text -->
+    <div class="ltr-text" id="rxMessage"></div>
+
+    <!-- Closing -->
+    <div class="ltr-close">
+      <div class="ltr-close-by">באהבה רבה,</div>
+      <svg class="ltr-sig-svg" width="130" height="40" viewBox="0 0 130 40">
+        <path class="sig-path" d="M5,32 C16,8 30,4 35,15 C40,24 30,31 25,29 C20,27 22,18 28,14 C37,9 52,20 58,26 C64,32 68,28 76,18 C84,8 91,6 98,16 C105,26 102,31 108,28 C115,22 120,13 126,10 C129,9 131,15 131,22"/>
+        <path class="sig-path" d="M18,36 Q26,33 36,36" stroke-width=".9" opacity=".4"/>
+      </svg>
+      <div class="ltr-sig-name" id="rxFromName"></div>
+      <div class="ltr-sig-role" id="rxFromRole"></div>
+    </div>
+
+    <!-- Contributors -->
+    <div class="contribs-block" id="rxContribs" style="display:none">
+      <div class="contribs-label">גם הם ממתינים לך 💛</div>
+      <div class="contribs-list" id="rxContribList"></div>
+    </div>
+
+    <!-- Separator -->
+    <div class="sep"><span>· השובר שלך ·</span></div>
+
+    <!-- Voucher Card -->
+    <div class="voucher-card" id="rxVoucher">
+      <div class="vc-hdr">
+        <img src="https://lh3.googleusercontent.com/sitesv/APaQ0STQv7BhuANWyTWJl9yCKqozK2QUJALzupkij4nzjDE9RTMB1jPnUbPDcQ2wxzXLQ53nCfVtR2_2luuJ9WIESUmASqhKHRkbjlImDF4FhO_unTvLFFeYXrKBPliD8f0Bt7sgM6WIBaY8vqvEgOwlaztpJDy4rzswM-wM-GzopxTSk5Vk8VPRTWyPFoA=w16383"
+          alt="" onerror="this.style.display='none'">
+        <span class="vc-badge">GIFT VOUCHER · שובר מתנה</span>
+      </div>
+      <div class="vc-body">
+        <div class="vc-pkg" id="rxPkgName">חבילת Silver</div>
+        <div class="vc-price" id="rxPkgPrice">₪1,480</div>
+        <div class="vc-desc" id="rxPkgDesc"></div>
+        <hr class="vc-divider">
+        <div class="vc-meta">
+          <div class="vc-mi"><label>ל:</label><span id="rxToName">-</span></div>
+          <div class="vc-mi"><label>מאת:</label><span id="rxFromNameCard">-</span></div>
+          <div class="vc-mi"><label>תוקף עד:</label><span id="rxVDate">-</span></div>
+          <div class="vc-mi"><label>מזהה:</label><span id="rxPid" style="font-size:.72rem;letter-spacing:.5px"></span></div>
+        </div>
+        <div class="vc-loc">
+          📍 <span id="rxAddr">עמק איילון 34, מודיעין</span> ·
+          <a id="rxWaze" href="#" target="_blank">פתח בוויז ←</a>
+        </div>
+        <div id="rxVoucherContribs" style="display:none;margin-top:10px;display:flex;flex-wrap:wrap;gap:4px"></div>
+      </div>
+      <div class="vc-footer">
+        <span>Sample Rate: 24-bit/96kHz · Engineer: Yakir Cohen</span>
+        <span class="vc-tooltip" data-tip="בתוקף לשנה | אין כפל מבצעים">תנאים ←</span>
+      </div>
+    </div>
+
+    <!-- Hype Counter -->
+    <div class="hype-block">
+      <div class="hype-num" id="hypeDays">0</div>
+      <div class="hype-unit">ימים מאז שקיבלת את המתנה</div>
+      <div class="hype-msg" id="hypeMsg"></div>
+      <div class="hype-track"><div class="hype-fill" id="hypeFill" style="width:0%"></div></div>
+    </div>
+
+    <!-- Audio Player -->
+    <div class="audio-block" id="audioBlock" style="display:none">
+      <div class="ap-topbar">
+        <span class="ap-label">פלייבק לאימון</span>
+        <div class="ap-wave" id="apWave"></div>
+      </div>
+      <div class="ap-body">
+        <div class="ap-row">
+          <button class="ap-play" id="apPlayBtn" onclick="toggleAudio()">
+            <svg id="apPlayIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <div class="ap-info">
+            <div class="ap-tname" id="apTitle">Rough Mix Preview</div>
+            <div class="ap-artist">יקיר כהן הפקות</div>
+          </div>
+        </div>
+        <div class="ap-progress">
+          <div class="ap-track" id="apTrack" onclick="seekAudio(event)">
+            <div class="ap-fill" id="apFill"></div>
+          </div>
+          <div class="ap-time" id="apTime">0:00 / 0:00</div>
+        </div>
+      </div>
+    </div>
+    <audio id="rxAudio"></audio>
+
+    <!-- Instagram CTA -->
+    <a class="ig-card" id="igCard" href="#" target="_blank" rel="noopener">
+      <div class="ig-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+      </div>
+      <div class="ig-text">
+        <h5>Watch Studio Guide</h5>
+        <p>צפה בסרטון - איך להתכונן לסשן הקלטה</p>
+      </div>
+      <div class="ig-arrow">←</div>
+    </a>
+
+    <!-- WhatsApp one-touch -->
+    <div class="wa-cta" id="waCta" onclick="bookWA()">
+      <div class="wa-icon">📱</div>
+      <div class="wa-text">
+        <h5>תאם סשן בנגיעה אחת</h5>
+        <p id="waCtaDesc">הודעה מוכנה תישלח ישירות ליקיר</p>
+      </div>
+      <div class="wa-arrow">←</div>
+    </div>
+
+    <!-- Checklist with tabs -->
+    <div class="cl-block">
+      <div class="cl-tabs">
+        <div class="cl-tab on" onclick="switchTab(0)">💧 גוף ונפש</div>
+        <div class="cl-tab" onclick="switchTab(1)">🎵 אמנות</div>
+      </div>
+      <div class="cl-panel on" id="clPanel0"></div>
+      <div class="cl-panel" id="clPanel1"></div>
+      <div class="cl-progress">
+        <div class="cl-prog-label">
+          <span>הכנות שהשלמת</span>
+          <span id="clProgText">0 / 6</span>
+        </div>
+        <div class="cl-prog-track"><div class="cl-prog-fill" id="clProgFill" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- Location -->
+    <div class="loc-card">
+      <h4>כתובת האולפן</h4>
+      <p id="rxLocText">עמק איילון 34, מודיעין</p>
+      <p style="margin-top:8px">
+        <a id="rxLocWaze" href="https://waze.com/ul?q=יקיר+כהן+מודיעין" target="_blank">🗺️ פתח בוויז ←</a>
+      </p>
+    </div>
+
+    <!-- Post-session gallery -->
+    <div class="gal-section" id="galSection" style="display:none">
+      <div class="sep"><span>· גלריית הזיכרון ·</span></div>
+      <div class="gal-hdr">המסע שלי באולפן</div>
+      <div class="gal-grid" id="galGrid"></div>
+    </div>
+
+    <!-- Bottom actions -->
+    <div class="bottom-actions">
+      <button class="fb fb-w" onclick="window.print()"><span class="led" style="background:#aaa"></span>🖨️ הדפס שובר</button>
+      <button class="fb fb-a" onclick="saveStoryPNG()"><span class="led la"></span>📸 שמור כזיכרון</button>
+      <button class="fb fb-w" onclick="bookWA()"><span class="led" style="background:#7fdd9a;box-shadow:0 0 5px #7fdd9a"></span>📱 שתף</button>
+    </div>
+
+  </div><!-- /letterPage -->
+</div><!-- /content -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ════════════════════════════════════════════
+   CONFIG
+════════════════════════════════════════════ */
+const LOGO='https://lh3.googleusercontent.com/sitesv/APaQ0STQv7BhuANWyTWJl9yCKqozK2QUJALzupkij4nzjDE9RTMB1jPnUbPDcQ2wxzXLQ53nCfVtR2_2luuJ9WIESUmASqhKHRkbjlImDF4FhO_unTvLFFeYXrKBPliD8f0Bt7sgM6WIBaY8vqvEgOwlaztpJDy4rzswM-wM-GzopxTSk5Vk8VPRTWyPFoA=w16383';
+const WA_YAKIR='972587555456'; // ← שנה למספר של יקיר
+
+const PKGS=[
+  {name:'חבילת בסיס',   price:'₪990',   desc:'הקלטה מקצועית · עריכה · קובץ WAV/MP3'},
+  {name:'חבילת Silver', price:'₪1,480', desc:'Melodyne · הכוונה · חימום קולי · תמונה מהסשן'},
+  {name:'חבילת VIP 👑', price:'₪2,380', desc:'Silver + קליפ וידאו 4K · 2 זוויות · עריכה מלאה'},
+];
+
+const HYPE=[
+  [0,0,  'האולפן מחכה לך מהיום הראשון 🎙️'],
+  [1,1,  'יום אחד עבר... המיקרופון כבר מכוון 🎤'],
+  [2,7,  '{n} ימים עברו - האנרגיה עדיין טרייה 🔥'],
+  [8,30, 'המיקרופון כבר מכוון, אנחנו מחכים לקול שלך... {n} ימים עברו'],
+  [31,90,'כבר {n} ימים! הגיע הזמן לקבוע תאריך 📅'],
+  [91,180,'האולפן שלנו פתוח - רק בשבילך. עברו {n} ימים 🎚️'],
+  [181,364,'נותרו {days} ימים לתוקף - אל תחכה עוד ⏳'],
+  [365,9999,'השובר עומד לפוג - צור קשר עכשיו! 🚨'],
+];
+
+const CL=[
+  {tab:0,icon:'😴',t:'ישנת לפחות 7–8 שעות',d:'הקול שלך זקוק לשינה כדי להיות גמיש ומלא'},
+  {tab:0,icon:'💧',t:'שתית מים בשפע',d:'הידרציה מלאה = מיתרי קול בריאים ומגיבים'},
+  {tab:0,icon:'🥛',t:'ללא מוצרי חלב 3 שעות לפני',d:'חלב יוצר ריר ומפריע לקול'},
+  {tab:1,icon:'📝',t:'הבאת את המילים',d:'מודפס או בטלפון - להיות מוכן לגמרי'},
+  {tab:1,icon:'🎵',t:'אימנת את השיר לפחות 3 פעמים',d:'לחן, מילים וביטחון - בקול, לא בלב'},
+  {tab:1,icon:'⚡',t:'מגיע עם אנרגיה חיובית',d:'האנרגיה שלך נשמעת בהקלטה. תגיע מוכן להתרגש.'},
+];
+
+/* ════════════════════════════════════════════
+   STATE
+════════════════════════════════════════════ */
+const $=id=>document.getElementById(id);
+let D=null; // decoded data
+let audioPlaying=false;
+let clDone=new Set();
+let activeTab=0;
+
+/* ════════════════════════════════════════════
+   DECODE
+════════════════════════════════════════════ */
+function dec(b64){
+  try{
+    const a=JSON.parse(decodeURIComponent(escape(atob(b64))));
+    return{tpl:+a[0]||0,pkg:+a[1]||1,toName:a[2]||'',salutation:a[3]||'',
+      fromName:a[4]||'',fromRole:a[5]||'',ltrDate:a[6]||'',
+      address:a[7]||'',vDate:a[8]||'',message:a[9]||'',
+      contribs:a[10]?a[10].split('|').filter(Boolean):[],
+      hidePrice:a[11]===1,
+      prepVideo:a[12]||'',roughMix:a[13]||'',
+      galImg1:a[14]||'',galImg2:a[15]||'',galAudio:a[16]||'',
+      projectId:a[17]||'',issueDate:a[18]||new Date().toISOString(),
+      password:a[19]||''};
+  }catch(e){return null;}
+}
+
+/* ════════════════════════════════════════════
+   PASSWORD CHECK
+════════════════════════════════════════════ */
+function checkPwd(){
+  if(!D){toast('שגיאה: אין נתוני שובר');return;}
+  const v=$('pwdInput').value.trim().toUpperCase();
+  const expected=(D.password||'').toUpperCase();
+  if(!expected||v===expected){
+    $('pwdGate').classList.add('gone');
+    $('content').classList.add('on');
+    populateGate();
+  } else {
+    $('pgErr').classList.add('show');
+    $('pwdInput').value='';
+    setTimeout(()=>$('pgErr').classList.remove('show'),2800);
+    if(window.navigator.vibrate)window.navigator.vibrate(100);
+  }
+}
+
+/* ════════════════════════════════════════════
+   POPULATE GATE SCREEN
+════════════════════════════════════════════ */
+function populateGate(){
+  if(!D)return;
+  if(D.fromName){
+    $('gsSenderBadge').style.display='flex';
+    $('gsSenderName').textContent=D.fromName;
+  }
+}
+
+/* ════════════════════════════════════════════
+   AMBIENT BACKGROUND PARTICLES
+════════════════════════════════════════════ */
+function initAmbient(){
+  const cv=$('ambientCanvas');
+  const ctx=cv.getContext('2d');
+  let W,H,pts=[];
+  function resize(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;}
+  function mkPt(){return{
+    x:Math.random()*W,y:Math.random()*H,
+    r:Math.random()*2.2+.4,
+    vx:(Math.random()-.5)*.18,vy:(Math.random()-.5)*.18,
+    o:Math.random()*.35+.05,
+    color:Math.random()>.7?'200,16,46':'26,26,26'
+  };}
+  function init(){resize();pts=Array.from({length:55},mkPt);}
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    pts.forEach(p=>{
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${p.color},${p.o})`;
+      ctx.fill();
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<-5||p.x>W+5||p.y<-5||p.y>H+5){Object.assign(p,mkPt());p.x=Math.random()*W;p.y=Math.random()*H;}
+    });
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',resize);
+  init();draw();
+}
+
+/* ════════════════════════════════════════════
+   REVEAL LETTER
+════════════════════════════════════════════ */
+let revealed=false;
+function revealLetter(){
+  if(revealed)return;revealed=true;
+  if(window.navigator.vibrate)window.navigator.vibrate(40);
+  const gate=$('gateScreen');
+  gate.style.transition='opacity .5s ease,transform .5s ease';
+  gate.style.opacity='0';gate.style.transform='scale(.97)';
+  setTimeout(()=>{gate.classList.add('gone');},480);
+  const page=$('letterPage');
+  page.classList.add('vis');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    page.classList.add('revealed');
+    setTimeout(()=>page.scrollIntoView({behavior:'smooth',block:'start'}),100);
+  }));
+  // Start audio if roughMix exists (user gesture unlocks it)
+  const aud=$('rxAudio');
+  if(aud&&aud.src&&aud.src!==location.href)aud.load();
+  reportHeight();
+}
+
+/* ════════════════════════════════════════════
+   POPULATE RECEIVER PAGE
+════════════════════════════════════════════ */
+function populateReceiver(){
+  if(!D)return;
+  const pkg=PKGS[D.pkg]||PKGS[1];
+
+  // Letter
+  $('rxDate').textContent=D.ltrDate||'';
+  $('rxLoc').textContent=D.address||'';
+  $('rxSalutation').textContent=D.salutation||(D.toName?`${D.toName},`:'יקירי/ה,');
+
+  // Message: detect if it's from STT (starts with special marker) or regular
+  const msg=D.message||'';
+  if(msg.startsWith('🎤:')){
+    $('sttBubble').style.display='block';
+    $('sttBubbleText').textContent=msg.replace('🎤:','').trim();
+    $('rxMessage').style.display='none';
+  } else {
+    $('rxMessage').textContent=msg;
+  }
+
+  $('rxFromName').textContent=D.fromName||'';
+  $('rxFromRole').textContent=D.fromRole||'';
+
+  // Contributors
+  if(D.contribs&&D.contribs.length){
+    $('rxContribs').style.display='block';
+    $('rxContribList').innerHTML=D.contribs.map(c=>`<div class="contrib-pill">${c}</div>`).join('');
+    const vc=$('rxVoucherContribs');
+    vc.style.display='flex';vc.style.flexWrap='wrap';vc.style.gap='4px';
+    vc.innerHTML=D.contribs.map(c=>`<span style="background:#f4f4f4;border:1px solid #e8e8e8;border-radius:100px;padding:2px 8px;font-size:.62rem;color:#3a3a3a">${c}</span>`).join('');
+  }
+
+  // Voucher card
+  $('rxPkgName').textContent=pkg.name;
+  $('rxPkgPrice').textContent=pkg.price;
+  $('rxPkgPrice').className='vc-price'+(D.hidePrice?' hidden':'');
+  $('rxPkgDesc').textContent=pkg.desc;
+  $('rxToName').textContent=D.toName||'-';
+  $('rxFromNameCard').textContent=D.fromName||'-';
+  $('rxVDate').textContent=D.vDate||'-';
+  $('rxPid').textContent=D.projectId||'';
+  $('rxAddr').textContent=D.address||'עמק איילון 34, מודיעין';
+  $('rxLocText').textContent=D.address||'עמק איילון 34, מודיעין';
+  const wq=encodeURIComponent(D.address||'אולפני יקיר כהן מודיעין');
+  $('rxWaze').href=`https://waze.com/ul?q=${wq}`;
+  $('rxLocWaze').href=`https://waze.com/ul?q=${wq}`;
+
+  // Instagram
+  if(D.prepVideo)$('igCard').href=D.prepVideo;
+  else $('igCard').style.display='none';
+
+  // Hype
+  initHype();
+
+  // Audio
+  const mixUrl=driveDirect(D.roughMix);
+  if(mixUrl){
+    $('audioBlock').style.display='block';
+    $('rxAudio').src=mixUrl;
+    $('apTitle').textContent=`Rough Mix - ${D.toName||'Preview'}`;
+    initAudioPlayer();
+    buildApWave();
+  }
+
+  // Checklist
+  buildChecklist();
+
+  // Gallery
+  buildGallery();
+
+  // WA desc
+  $('waCtaDesc').textContent=`"היי יקיר, קיבלתי שובר ${pkg.name} מ-${D.fromName||'-'}!"`;
+}
+
+/* ════════════════════════════════════════════
+   HYPE COUNTER
+════════════════════════════════════════════ */
+function initHype(){
+  const issued=new Date(D.issueDate||new Date());
+  const expiry=new Date(issued);expiry.setFullYear(expiry.getFullYear()+1);
+  const now=new Date();
+  const daysPassed=Math.max(0,Math.floor((now-issued)/86400000));
+  const daysLeft=Math.max(0,Math.floor((expiry-now)/86400000));
+  const pct=Math.min(100,(daysPassed/365)*100);
+  $('hypeDays').textContent=daysPassed;
+  $('hypeFill').style.width=pct+'%';
+  let msg='';
+  for(const[mn,mx,tmpl] of HYPE){
+    if(daysPassed>=mn&&daysPassed<=mx){
+      msg=tmpl.replace('{n}',daysPassed).replace('{days}',daysLeft);break;
+    }
+  }
+  $('hypeMsg').textContent=msg;
+}
+
+/* ════════════════════════════════════════════
+   GOOGLE DRIVE CONVERTER
+════════════════════════════════════════════ */
+function driveDirect(url){
+  if(!url)return'';
+  const m=url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  return m?`https://drive.google.com/uc?export=download&id=${m[1]}`:url;
+}
+
+/* ════════════════════════════════════════════
+   AUDIO PLAYER
+════════════════════════════════════════════ */
+function initAudioPlayer(){
+  const aud=$('rxAudio');
+  aud.addEventListener('timeupdate',()=>{
+    if(!aud.duration)return;
+    const p=(aud.currentTime/aud.duration)*100;
+    $('apFill').style.width=p+'%';
+    $('apTime').textContent=`${fmt(aud.currentTime)} / ${fmt(aud.duration)}`;
+  });
+  aud.addEventListener('ended',()=>{audioPlaying=false;updatePlayIcon();pauseWave();});
+}
+function fmt(s){const m=Math.floor(s/60),sec=Math.floor(s%60);return`${m}:${sec.toString().padStart(2,'0')}`;}
+function toggleAudio(){
+  const aud=$('rxAudio');
+  if(audioPlaying){aud.pause();audioPlaying=false;pauseWave();}
+  else{aud.play().catch(()=>{});audioPlaying=true;playWave();}
+  updatePlayIcon();
+}
+function updatePlayIcon(){
+  $('apPlayIcon').innerHTML=audioPlaying
+    ?'<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'
+    :'<path d="M8 5v14l11-7z"/>';
+}
+function seekAudio(e){
+  const aud=$('rxAudio');if(!aud.duration)return;
+  const r=$('apTrack').getBoundingClientRect();
+  aud.currentTime=((e.clientX-r.left)/r.width)*aud.duration;
+}
+function buildApWave(){
+  const w=$('apWave');if(!w)return;
+  for(let i=0;i<18;i++){
+    const d=document.createElement('div');
+    d.className='ap-wv paused';
+    d.style.cssText=`height:${3+Math.random()*10}px;animation-delay:${i*.07}s;animation-duration:${.6+Math.random()*.6}s`;
+    w.appendChild(d);
+  }
+}
+function playWave(){document.querySelectorAll('.ap-wv').forEach(d=>d.classList.remove('paused'));}
+function pauseWave(){document.querySelectorAll('.ap-wv').forEach(d=>d.classList.add('paused'));}
+
+/* ════════════════════════════════════════════
+   CHECKLIST WITH TABS
+════════════════════════════════════════════ */
+function buildChecklist(){
+  [0,1].forEach(tab=>{
+    const items=CL.filter(c=>c.tab===tab);
+    $(`clPanel${tab}`).innerHTML=items.map((item,i)=>{
+      const idx=CL.indexOf(item);
+      return`<div class="cl-item" id="cli${idx}" onclick="toggleCl(${idx})">
+        <div class="cl-box"><span class="cl-tick">✓</span></div>
+        <div class="cl-txt"><h5>${item.icon} ${item.t}</h5><p>${item.d}</p></div>
+      </div>`;
+    }).join('');
+  });
+  updateClProgress();
+}
+function toggleCl(i){
+  const el=$(`cli${i}`);
+  el.classList.toggle('done');
+  if(el.classList.contains('done'))clDone.add(i);
+  else clDone.delete(i);
+  if(window.navigator.vibrate)window.navigator.vibrate(20);
+  updateClProgress();
+}
+function updateClProgress(){
+  const total=CL.length,done=clDone.size;
+  $('clProgText').textContent=`${done} / ${total}`;
+  $('clProgFill').style.width=(done/total*100)+'%';
+}
+function switchTab(t){
+  activeTab=t;
+  document.querySelectorAll('.cl-tab').forEach((el,i)=>el.classList.toggle('on',i===t));
+  document.querySelectorAll('.cl-panel').forEach((el,i)=>el.classList.toggle('on',i===t));
+}
+
+/* ════════════════════════════════════════════
+   WHATSAPP BOOK
+════════════════════════════════════════════ */
+function bookWA(){
+  if(!D)return;
+  const pkg=PKGS[D.pkg]||PKGS[1];
+  const msg=`היי יקיר 👋\nקיבלתי שובר ${pkg.name} מ-${D.fromName||'-'}!\nמזהה: ${D.projectId}\nאני רוצה לקבוע סשן 🎤`;
+  window.open(`https://wa.me/${WA_YAKIR}?text=${encodeURIComponent(msg)}`,'_blank');
+}
+
+/* ════════════════════════════════════════════
+   GALLERY
+════════════════════════════════════════════ */
+function buildGallery(){
+  if(!D)return;
+  const has=D.galImg1||D.galImg2||D.galAudio;
+  if(!has)return;
+  $('galSection').style.display='block';
+  const g=$('galGrid');g.innerHTML='';
+  if(D.message){
+    const mc=document.createElement('div');mc.className='gal-orig';
+    mc.innerHTML=`<label>המכתב המקורי</label><p>${D.message}</p>`;
+    g.appendChild(mc);
+  }
+  if(D.galImg1){const d=document.createElement('div');d.className='gal-img';d.innerHTML=`<img src="${D.galImg1}" loading="lazy">`;g.appendChild(d);}
+  if(D.galImg2){const d=document.createElement('div');d.className='gal-img';d.innerHTML=`<img src="${D.galImg2}" loading="lazy">`;g.appendChild(d);}
+  if(D.galAudio){
+    const ac=document.createElement('div');ac.className='gal-audio';
+    const src=driveDirect(D.galAudio);
+    ac.innerHTML=`<label>הקלטה סופית מהסשן 🎶</label><audio controls src="${src}"></audio>`;
+    g.appendChild(ac);
+  }
+}
+
+/* ════════════════════════════════════════════
+   SAVE STORY PNG
+════════════════════════════════════════════ */
+function saveStoryPNG(){
+  const vc=$('rxVoucher');
+  if(!vc){toast('אין שובר לשמירה');return;}
+  toast('⏳ יוצר פוסטר...');
+  html2canvas(vc,{scale:3,useCORS:true,backgroundColor:'#ffffff',allowTaint:true})
+    .then(cv=>{
+      const sc=document.createElement('canvas');
+      sc.width=1080;sc.height=1920;
+      const ctx=sc.getContext('2d');
+      // White background
+      ctx.fillStyle='#fafaf8';ctx.fillRect(0,0,1080,1920);
+      // Subtle red top bar
+      ctx.fillStyle='#c8102e';ctx.fillRect(0,0,1080,6);
+      // Center voucher
+      const r=Math.min(980/cv.width,1200/cv.height);
+      const w=cv.width*r,h=cv.height*r;
+      ctx.drawImage(cv,(1080-w)/2,(1920-h)/2,w,h);
+      const a=document.createElement('a');
+      a.href=sc.toDataURL('image/png');
+      a.download=`yakir-memory-${D?.toName||'voucher'}.png`;
+      a.click();toast('✅ פוסטר נשמר לגלריה!');
+    }).catch(()=>toast('⚠️ שגיאה בשמירה'));
+}
+
+/* ════════════════════════════════════════════
+   TOAST
+════════════════════════════════════════════ */
+function toast(msg){
+  const el=$('toast');el.textContent=msg;el.classList.add('show');
+  clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),3200);
+}
+
+/* ════════════════════════════════════════════
+   IFRAME HEIGHT REPORTING
+════════════════════════════════════════════ */
+function reportHeight(){
+  const h=Math.max(document.body.scrollHeight,document.documentElement.scrollHeight);
+  window.parent.postMessage({frameHeight:h},'*');
+}
+const ro=new ResizeObserver(reportHeight);
+ro.observe(document.body);
+window.addEventListener('load',reportHeight);
+
+/* ════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════ */
+(function init(){
+  // Ambient always running
+  initAmbient();
+
+  // Embedded mode
+  const params=new URLSearchParams(location.search);
+  if(params.get('embedded')==='true')document.body.classList.add('embedded');
+
+  // Decode data
+  const raw=params.get('data');
+  if(!raw){
+    // No data - show error
+    document.getElementById('pwdGate').innerHTML=`
+      <img class="pg-logo" src="${LOGO}" style="height:48px" onerror="this.style.opacity='.3'">
+      <h2 style="font-family:var(--ffs);font-size:1.4rem;text-align:center;color:var(--ink)">שגיאה: לינק לא תקין</h2>
+      <p style="font-size:.84rem;color:var(--mid);text-align:center;max-width:260px;line-height:1.6">
+        הלינק הזה חסר נתונים. בקש מהשולח לשלוח שוב את הלינק המלא.
+      </p>`;
+    return;
+  }
+  D=dec(raw);
+  if(!D){
+    document.getElementById('pwdGate').innerHTML=`
+      <img class="pg-logo" src="${LOGO}" style="height:48px" onerror="this.style.opacity='.3'">
+      <h2 style="font-family:var(--ffs);font-size:1.4rem;text-align:center;color:var(--ink)">שגיאה בפענוח</h2>
+      <p style="font-size:.84rem;color:var(--mid);text-align:center;max-width:260px;line-height:1.6">
+        הלינק פגום. בקש מהשולח לשלוח שוב.
+      </p>`;
+    return;
+  }
+
+  // If no password set - skip gate
+  if(!D.password){
+    $('pwdGate').classList.add('gone');
+    $('content').classList.add('on');
+    populateGate();
+    populateReceiver();
+    return;
+  }
+
+  // Show password gate, populate receiver after success
+  // Override checkPwd to also call populateReceiver
+  const origCheckPwd=checkPwd;
+  window.checkPwd=function(){
+    const v=$('pwdInput').value.trim().toUpperCase();
+    const expected=(D.password||'').toUpperCase();
+    if(!expected||v===expected){
+      $('pwdGate').classList.add('gone');
+      $('content').classList.add('on');
+      populateGate();
+      populateReceiver();
+    } else {
+      $('pgErr').classList.add('show');
+      $('pwdInput').value='';
+      setTimeout(()=>$('pgErr').classList.remove('show'),2800);
+      if(window.navigator.vibrate)window.navigator.vibrate(100);
+    }
+  };
+})();
+</script>
+</body>
+</html>

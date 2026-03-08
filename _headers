@@ -1,0 +1,18 @@
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(self), geolocation=()
+  Cache-Control: public, max-age=3600, s-maxage=86400
+
+/admin.html
+  Cache-Control: no-store, no-cache, must-revalidate
+
+/voucher.html
+  X-Frame-Options: ALLOWALL
+  Content-Security-Policy: frame-ancestors 'self' https://sites.google.com https://*.google.com https://*.googleusercontent.com *
+
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.jpg
+  Cache-Control: public, max-age=31536000, immutable

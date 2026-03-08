@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>יקיר כהן | ממשק ניהול</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Frank+Ruhl+Libre:wght@400;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+/* ══════════════════════════════════════════════
+   TOKENS
+══════════════════════════════════════════════ */
+:root{
+  --bg:     #0a0a0a; --bg2:    #141414; --bg3:    #1e1e1e;
+  --red:    #c8102e; --red2:   #9e0d23; --red-g:  rgba(200,16,46,.08);
+  --white:  #ffffff; --off:    #fafaf8;
+  --ink:    #1a1a1a; --mid:    #6a6a6a; --silver: #9a9a9a;
+  --ash:    #d0d0d0; --mist:   #e8e8e8; --fog:    #f4f4f4;
+  --border: rgba(255,255,255,.08);
+  --gold:   #c9a84c;
+  --r:10px; --r2:16px; --r3:24px;
+  --sh: 0 2px 12px rgba(0,0,0,.5);
+  --tr: all .25s cubic-bezier(.4,0,.2,1);
+  --ff: 'Heebo',sans-serif;
+  --ffs: 'Frank Ruhl Libre',serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:var(--ff);-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--white);overflow-x:hidden}
+a{color:var(--red);text-decoration:none}
+
+/* ── PASSWORD GATE ── */
+#gate{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;
+  padding:40px 20px;
+}
+#gate.hidden{display:none}
+.gate-logo{height:52px;filter:drop-shadow(0 0 20px rgba(200,16,46,.4))}
+.gate-title{font-family:var(--ffs);font-size:1.5rem;font-weight:900;color:var(--white);text-align:center;line-height:1.2}
+.gate-sub{font-size:.76rem;color:var(--silver);letter-spacing:2px;text-transform:uppercase}
+.gate-form{display:flex;gap:8px;max-width:320px;width:100%}
+.gate-input{
+  flex:1;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r);
+  color:var(--white);font-family:var(--ff);font-size:.95rem;padding:12px 16px;direction:ltr;
+  text-align:center;letter-spacing:4px;transition:var(--tr)}
+.gate-input:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(200,16,46,.15)}
+.gate-input::placeholder{letter-spacing:1px;color:rgba(255,255,255,.2)}
+.gate-btn{
+  background:var(--red);border:none;border-radius:var(--r);
+  color:var(--white);font-family:var(--ff);font-weight:700;font-size:.9rem;
+  padding:12px 20px;cursor:pointer;transition:var(--tr)}
+.gate-btn:hover{background:var(--red2);transform:translateY(-1px)}
+.gate-err{font-size:.78rem;color:#ff6060;display:none;text-align:center}
+.gate-err.show{display:block}
+
+/* ── TOP BAR ── */
+.ab{
+  position:fixed;top:0;left:0;right:0;height:48px;z-index:400;
+  background:rgba(10,10,10,.97);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+.ab-l{display:flex;align-items:center;gap:10px}
+.ab-logo{height:24px;filter:drop-shadow(0 0 8px rgba(200,16,46,.35))}
+.ab-title{font-size:.7rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.38)}
+.ab-r{display:flex;align-items:center;gap:8px}
+.live-pill{display:flex;align-items:center;gap:4px;padding:3px 9px;border-radius:100px;
+  background:rgba(200,16,46,.12);border:1px solid rgba(200,16,46,.35);
+  font-weight:700;font-size:.6rem;letter-spacing:2px;color:var(--red)}
+.ldot{width:5px;height:5px;border-radius:50%;background:var(--red);animation:lp 1.2s ease-in-out infinite}
+@keyframes lp{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.7)}}
+
+/* ── SPLIT LAYOUT ── */
+#adminView{display:flex;min-height:100vh;padding-top:48px}
+.fp{
+  width:380px;flex-shrink:0;overflow-y:auto;padding:20px 16px 100px;
+  background:var(--bg2);border-left:1px solid var(--border);
+  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent}
+.fp::-webkit-scrollbar{width:2px}
+.fp::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+.pp{
+  flex:1;display:flex;flex-direction:column;padding:20px 24px;gap:14px;
+  background:var(--bg);overflow-y:auto}
+
+/* ── FORM SECTIONS ── */
+.fs{
+  font-weight:700;font-size:.58rem;letter-spacing:3px;text-transform:uppercase;
+  color:var(--red);margin:18px 0 8px;
+  display:flex;align-items:center;gap:8px}
+.fs:first-child{margin-top:0}
+.fs::after{content:'';flex:1;height:1px;background:var(--border)}
+.fld{display:flex;flex-direction:column;gap:5px;margin-bottom:9px}
+.fld label{font-size:.62rem;font-weight:600;color:var(--silver);letter-spacing:.5px;text-transform:uppercase}
+input[type=text],input[type=url],textarea,select{
+  width:100%;background:rgba(255,255,255,.05);border:1.5px solid var(--border);
+  border-radius:8px;color:var(--white);font-family:var(--ff);font-size:.86rem;
+  padding:9px 12px;direction:rtl;transition:var(--tr);-webkit-appearance:none}
+input:focus,textarea:focus,select:focus{
+  outline:none;border-color:var(--red);background:rgba(200,16,46,.06);
+  box-shadow:0 0 0 3px rgba(200,16,46,.1)}
+select option{background:var(--bg2)}
+::placeholder{color:rgba(255,255,255,.18)}
+textarea{min-height:72px;resize:vertical;line-height:1.65}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.chk-row{display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer}
+.chk-row input{width:14px;height:14px;accent-color:var(--red)}
+.chk-row span{font-size:.8rem;color:rgba(255,255,255,.7)}
+.helper{font-size:.65rem;color:var(--silver);margin-top:3px;line-height:1.4}
+.msg-wrap{position:relative}
+.msg-wrap textarea{padding-bottom:22px}
+.cc{position:absolute;bottom:7px;left:10px;font-size:.58rem;color:var(--silver);letter-spacing:.5px}
+.cc.w{color:#f59e0b}.cc.o{color:var(--red)}
+
+/* ── TEMPLATE PICKER ── */
+.tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:8px}
+.tt{
+  border-radius:8px;height:52px;cursor:pointer;
+  border:2px solid var(--border);transition:var(--tr);
+  display:flex;align-items:flex-end;justify-content:center;
+  padding-bottom:5px;position:relative;overflow:hidden}
+.tt:hover{transform:translateY(-2px)}
+.tt.on{border-color:var(--red);box-shadow:0 0 12px rgba(200,16,46,.35)}
+.tt.on::after{
+  content:'✓';position:absolute;top:4px;right:4px;
+  width:14px;height:14px;background:var(--red);border-radius:50%;
+  color:#fff;font-size:.5rem;font-weight:900;
+  display:flex;align-items:center;justify-content:center;line-height:14px}
+.tt .tn{font-size:.48rem;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.8);text-align:center}
+.t1{background:linear-gradient(135deg,#0a0a0a,#1c1c1c)}
+.t2{background:linear-gradient(135deg,#c8102e,#7a0a1a)}
+.t3{background:var(--off);border-color:var(--mist)!important}
+.t3 .tn{color:var(--ink)!important;text-shadow:none}
+
+/* ── PACKAGES ── */
+.pkg-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:9px}
+.pc{
+  border-radius:8px;padding:10px 6px;border:1.5px solid var(--border);
+  background:rgba(255,255,255,.03);cursor:pointer;transition:var(--tr);text-align:center}
+.pc:hover{border-color:rgba(200,16,46,.4)}
+.pc.on{border-color:var(--red);background:rgba(200,16,46,.1)}
+.pc-p{font-size:.8rem;color:var(--red);font-weight:700}
+.pc-n{font-size:.58rem;color:var(--silver);margin-top:2px}
+
+/* ── PRESETS ── */
+.pres{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.prb{
+  padding:4px 10px;border-radius:100px;border:1.5px solid var(--border);
+  background:transparent;color:rgba(255,255,255,.55);font-family:var(--ff);
+  font-size:.68rem;cursor:pointer;transition:var(--tr)}
+.prb:hover{border-color:var(--red);color:var(--red)}
+
+/* ── CONTRIBUTORS ── */
+.ctags{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.ctag{
+  background:rgba(255,255,255,.06);border:1px solid var(--border);
+  border-radius:100px;padding:3px 9px;font-size:.65rem;color:rgba(255,255,255,.7);
+  display:flex;align-items:center;gap:3px}
+.ctag .rm{cursor:pointer;opacity:.4;transition:opacity .2s}
+.ctag .rm:hover{opacity:1;color:var(--red)}
+
+/* ── STT BUTTON ── */
+.stt-row{display:flex;gap:6px;align-items:flex-start}
+.stt-row textarea{flex:1}
+.stt-btn{
+  flex-shrink:0;width:38px;height:38px;border-radius:8px;border:1.5px solid var(--border);
+  background:rgba(255,255,255,.05);color:rgba(255,255,255,.6);
+  cursor:pointer;transition:var(--tr);display:flex;align-items:center;justify-content:center;
+  font-size:1rem;margin-top:0}
+.stt-btn:hover{border-color:var(--red);color:var(--red)}
+.stt-btn.listening{background:rgba(200,16,46,.15);border-color:var(--red);
+  color:var(--red);animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(200,16,46,.4)}50%{box-shadow:0 0 0 6px rgba(200,16,46,0)}}
+
+/* ══════════════════════════════════════════════
+   CONSOLE PANEL
+══════════════════════════════════════════════ */
+.console{
+  background:#0d0d0d;border-radius:10px;padding:14px 14px 16px;
+  border:1px solid rgba(255,255,255,.06);margin-top:4px}
+.console-lbl{
+  font-size:.55rem;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(255,255,255,.25);margin-bottom:12px;
+  display:flex;align-items:center;gap:8px}
+.console-lbl::before,.console-lbl::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.06)}
+.crows{display:flex;flex-direction:column;gap:7px}
+.crow{display:flex;gap:6px;flex-wrap:wrap}
+
+/* Fader Buttons */
+.fb{
+  position:relative;overflow:hidden;
+  padding:9px 14px;border-radius:6px;border:none;cursor:pointer;
+  font-family:var(--ff);font-size:.72rem;font-weight:700;letter-spacing:.3px;
+  transition:var(--tr);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.fb::before{content:'';position:absolute;top:0;left:0;right:0;height:42%;
+  background:rgba(255,255,255,.055);pointer-events:none}
+.fb::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:rgba(0,0,0,.45);pointer-events:none}
+.fb:active{transform:translateY(1px)!important}
+.fb-g{background:linear-gradient(180deg,#256638,#1a4a28);color:#7fdd9a;
+  box-shadow:0 3px 8px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.08)}
+.fb-g:hover{background:linear-gradient(180deg,#2f8048,#226035);transform:translateY(-1px)}
+.fb-r{background:linear-gradient(180deg,#7a1a1a,#5a0f0f);color:#ff9090;
+  box-shadow:0 3px 8px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06)}
+.fb-r:hover{background:linear-gradient(180deg,#9e2020,#741414);transform:translateY(-1px)}
+.fb-b{background:linear-gradient(180deg,#1a2d7a,#101d5a);color:#90b4ff;
+  box-shadow:0 3px 8px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06)}
+.fb-b:hover{background:linear-gradient(180deg,#2240a0,#182878);transform:translateY(-1px)}
+.fb-a{background:linear-gradient(180deg,#7a5a10,#5a3e06);color:#ffd97f;
+  box-shadow:0 3px 8px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06)}
+.fb-a:hover{background:linear-gradient(180deg,#9a7418,#7a520a);transform:translateY(-1px)}
+.fb-w{background:linear-gradient(180deg,#323232,#1e1e1e);color:#ccc;
+  box-shadow:0 3px 8px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.09)}
+.fb-w:hover{background:linear-gradient(180deg,#424242,#282828);transform:translateY(-1px)}
+.led{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.lg{background:#7fdd9a;box-shadow:0 0 5px #7fdd9a}
+.lr{background:#ff6060;box-shadow:0 0 5px #ff6060}
+.la{background:#ffd97f;box-shadow:0 0 5px #ffd97f}
+.lb{background:#90b4ff;box-shadow:0 0 5px #90b4ff}
+
+/* ══════════════════════════════════════════════
+   PAYMENT MODAL
+══════════════════════════════════════════════ */
+.modal-bg{
+  position:fixed;inset:0;z-index:800;
+  background:rgba(0,0,0,.85);backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);
+  padding:28px;max-width:480px;width:100%;
+  max-height:90vh;overflow-y:auto;position:relative}
+.modal-close{
+  position:absolute;top:14px;left:14px;
+  background:rgba(255,255,255,.08);border:none;border-radius:6px;
+  color:rgba(255,255,255,.5);cursor:pointer;padding:6px 10px;font-size:.8rem;transition:var(--tr)}
+.modal-close:hover{background:rgba(255,255,255,.15);color:#fff}
+.modal-title{font-family:var(--ffs);font-size:1.3rem;font-weight:900;color:var(--white);margin-bottom:4px}
+.modal-sub{font-size:.74rem;color:var(--silver);margin-bottom:20px;line-height:1.5}
+.pay-summary{
+  background:rgba(255,255,255,.04);border:1px solid var(--border);
+  border-radius:var(--r);padding:14px 16px;margin-bottom:18px}
+.pay-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0}
+.pay-row label{font-size:.66rem;color:var(--silver);text-transform:uppercase;letter-spacing:1px}
+.pay-row span{font-size:.86rem;font-weight:700;color:var(--white)}
+.pay-row.total span{font-size:1.1rem;color:var(--red)}
+.pay-msg{
+  background:rgba(200,16,46,.07);border:1px solid rgba(200,16,46,.2);
+  border-radius:var(--r);padding:14px 16px;margin-bottom:18px;
+  font-size:.82rem;color:rgba(255,255,255,.75);line-height:1.65}
+.pay-msg strong{color:var(--white)}
+.pay-methods{
+  display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px;align-items:center}
+.pm{
+  display:flex;align-items:center;gap:5px;padding:5px 10px;
+  border-radius:7px;border:1px solid var(--border);background:rgba(255,255,255,.04);
+  font-size:.68rem;color:rgba(255,255,255,.6)}
+.pm-icon{font-size:.9rem}
+.pay-confirm-btn{
+  width:100%;padding:14px;border-radius:var(--r);border:none;
+  background:var(--red);color:var(--white);font-family:var(--ff);
+  font-size:1rem;font-weight:700;cursor:pointer;transition:var(--tr);
+  display:flex;align-items:center;justify-content:center;gap:8px}
+.pay-confirm-btn:hover{background:var(--red2);transform:translateY(-1px);box-shadow:0 6px 20px rgba(200,16,46,.3)}
+.pay-confirm-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* Password reveal section */
+.pwd-box{
+  display:none;background:rgba(0,200,80,.06);border:1px solid rgba(0,200,80,.2);
+  border-radius:var(--r);padding:16px;margin-top:14px;text-align:center}
+.pwd-box.show{display:block}
+.pwd-label{font-size:.62rem;color:#7fdd9a;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.pwd-code{
+  font-family:monospace;font-size:1.6rem;font-weight:900;color:var(--white);
+  letter-spacing:4px;background:rgba(0,0,0,.4);padding:10px 20px;
+  border-radius:8px;border:1px solid rgba(255,255,255,.1);display:inline-block;margin-bottom:10px}
+.pwd-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+
+/* ══════════════════════════════════════════════
+   PREVIEW PANEL
+══════════════════════════════════════════════ */
+.pv-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-bottom:12px;border-bottom:1px solid var(--border);flex-shrink:0}
+.pv-lbl{font-size:.58rem;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.3);font-weight:700}
+.vstage{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:16px 0;min-height:0;overflow-y:auto}
+.vstage-inner{width:100%;max-width:560px}
+
+/* ══════════════════════════════════════════════
+   LIVE VOUCHER (Preview)
+══════════════════════════════════════════════ */
+.v-card{
+  background:var(--off);border-radius:var(--r2);overflow:hidden;
+  border:1px solid var(--mist);box-shadow:0 4px 30px rgba(0,0,0,.4)}
+.v-letter{padding:32px 36px 24px;font-family:var(--ff)}
+.v-ltr-logo{text-align:center;margin-bottom:20px}
+.v-ltr-logo img{height:34px}
+.v-date{text-align:center;font-size:.66rem;color:var(--mid);margin-bottom:4px}
+.v-loc{text-align:center;font-size:.66rem;color:var(--silver);margin-bottom:18px}
+.v-salutation{font-family:var(--ffs);font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:16px}
+.v-msg{
+  font-size:.88rem;line-height:1.9;color:var(--ink);
+  white-space:pre-wrap;word-break:break-word;margin-bottom:22px;
+  font-style:italic;border-right:3px solid var(--red);padding-right:14px}
+.v-sig-block{margin-top:6px;padding-top:16px;border-top:1px solid var(--mist)}
+.v-sig-by{font-size:.7rem;color:var(--mid)}
+.v-sig-name{font-family:var(--ffs);font-size:1rem;font-weight:700;color:var(--ink)}
+.v-sig-role{font-size:.68rem;color:var(--silver)}
+/* Voucher framed card */
+.v-voucher-frame{border-top:1px solid var(--mist)}
+.v-vc{border:4px solid var(--ink);margin:0;border-radius:0 0 var(--r2) var(--r2);overflow:hidden}
+.v-vc-hdr{background:var(--ink);padding:10px 20px;display:flex;align-items:center;justify-content:space-between}
+.v-vc-hdr img{height:22px;filter:brightness(0) invert(1)}
+.v-vc-badge{font-size:.48rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(255,255,255,.38);border:1px solid rgba(255,255,255,.15);padding:2px 7px;border-radius:100px}
+.v-vc-body{padding:16px 20px 18px;background:var(--white)}
+.v-vc-pkg{font-family:var(--ffs);font-size:1.2rem;font-weight:900;color:var(--ink)}
+.v-vc-price{font-size:.96rem;color:var(--red);font-weight:300;margin-top:1px}
+.v-vc-desc{font-size:.68rem;color:var(--mid);margin-top:6px;line-height:1.5}
+.v-vc-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;margin-top:12px;font-size:.72rem}
+.v-vc-meta-item label{font-size:.54rem;color:var(--silver);display:block;text-transform:uppercase;letter-spacing:1px;margin-bottom:1px}
+.v-vc-meta-item span{font-weight:700;color:var(--ink)}
+.v-vc-ft{background:var(--fog);border-top:1px solid var(--mist);padding:7px 20px;
+  font-size:.44rem;color:var(--silver)}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--ink);border-radius:100px;padding:10px 22px;
+  color:var(--white);font-size:.78rem;font-weight:600;z-index:9999;
+  transition:transform .4s cubic-bezier(.4,0,.2,1);white-space:nowrap;
+  box-shadow:0 4px 20px rgba(0,0,0,.3);pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:860px){
+  #adminView{flex-direction:column-reverse;height:auto}
+  .fp{width:100%;border-left:none;border-top:1px solid var(--border);max-height:55vh}
+  .pp{min-height:44vh;padding:14px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ GATE ═══════════ -->
+<div id="gate">
+  <img class="gate-logo"
+    src="https://lh3.googleusercontent.com/sitesv/APaQ0STQv7BhuANWyTWJl9yCKqozK2QUJALzupkij4nzjDE9RTMB1jPnUbPDcQ2wxzXLQ53nCfVtR2_2luuJ9WIESUmASqhKHRkbjlImDF4FhO_unTvLFFeYXrKBPliD8f0Bt7sgM6WIBaY8vqvEgOwlaztpJDy4rzswM-wM-GzopxTSk5Vk8VPRTWyPFoA=w16383"
+    alt="יקיר כהן" onerror="this.style.opacity='.3'">
+  <div class="gate-title">ממשק ניהול<br>יקיר כהן הפקות</div>
+  <div class="gate-sub">Admin Access Only</div>
+  <div class="gate-form">
+    <input class="gate-input" type="password" id="gatePass" placeholder="קוד גישה" onkeydown="if(event.key==='Enter')checkGate()">
+    <button class="gate-btn" onclick="checkGate()">→</button>
+  </div>
+  <div class="gate-err" id="gateErr">קוד שגוי - נסה שוב</div>
+</div>
+
+<!-- ═══════════ TOP BAR ═══════════ -->
+<header class="ab" id="adminBar" style="display:none">
+  <div class="ab-l">
+    <img class="ab-logo"
+      src="https://lh3.googleusercontent.com/sitesv/APaQ0STQv7BhuANWyTWJl9yCKqozK2QUJALzupkij4nzjDE9RTMB1jPnUbPDcQ2wxzXLQ53nCfVtR2_2luuJ9WIESUmASqhKHRkbjlImDF4FhO_unTvLFFeYXrKBPliD8f0Bt7sgM6WIBaY8vqvEgOwlaztpJDy4rzswM-wM-GzopxTSk5Vk8VPRTWyPFoA=w16383"
+      alt="" onerror="this.style.display='none'">
+    <span class="ab-title">Voucher Engine · Admin</span>
+  </div>
+  <div class="ab-r">
+    <div class="live-pill"><div class="ldot"></div>LIVE</div>
+  </div>
+</header>
+
+<!-- ═══════════ ADMIN SPLIT ═══════════ -->
+<div id="adminView" style="display:none">
+
+  <!-- ══ FORM PANEL ══ -->
+  <aside class="fp">
+
+    <!-- Template -->
+    <div class="fs">🎨 עיצוב השובר</div>
+    <div class="tpl-grid">
+      <div class="tt t1 on" id="tpl0" onclick="selTpl(0)"><div class="tn">Midnight<br>Black</div></div>
+      <div class="tt t2"    id="tpl1" onclick="selTpl(1)"><div class="tn">Studio<br>Red</div></div>
+      <div class="tt t3"    id="tpl2" onclick="selTpl(2)"><div class="tn">Clean<br>White</div></div>
+    </div>
+
+    <!-- Package -->
+    <div class="fs">💎 חבילה</div>
+    <div class="pkg-row">
+      <div class="pc"    id="pkg0" onclick="selPkg(0)"><div class="pc-p">₪990</div><div class="pc-n">בסיס</div></div>
+      <div class="pc on" id="pkg1" onclick="selPkg(1)"><div class="pc-p">₪1,480</div><div class="pc-n">Silver ⭐</div></div>
+      <div class="pc"    id="pkg2" onclick="selPkg(2)"><div class="pc-p">₪2,380</div><div class="pc-n">VIP 👑</div></div>
+    </div>
+    <label class="chk-row">
+      <input type="checkbox" id="hidePrice" onchange="sync()">
+      <span>הסתר מחיר בצד הלקוח</span>
+    </label>
+
+    <!-- Recipient -->
+    <div class="fs">👤 פרטי נמען</div>
+    <div class="fld"><label>שם מלא</label>
+      <input type="text" id="toName" placeholder="נוי כהן" oninput="sync()"></div>
+    <div class="fld"><label>פנייה אישית</label>
+      <input type="text" id="salutation" placeholder="אהובתנו נוי," oninput="sync()"></div>
+    <div class="row2">
+      <div class="fld"><label>שם שולח</label>
+        <input type="text" id="fromName" placeholder="אמא ואבא" oninput="sync()"></div>
+      <div class="fld"><label>תפקיד שולח</label>
+        <input type="text" id="fromRole" placeholder="ההורים שלך" oninput="sync()"></div>
+    </div>
+    <div class="row2">
+      <div class="fld"><label>תאריך</label>
+        <input type="text" id="ltrDate" placeholder="יוני 2026" oninput="sync()"></div>
+      <div class="fld"><label>תוקף</label>
+        <input type="text" id="vDate" placeholder="06/2027" oninput="sync()"></div>
+    </div>
+    <div class="fld"><label>כתובת האולפן</label>
+      <input type="text" id="address" value="עמק איילון 34, מודיעין" oninput="sync()"></div>
+
+    <!-- Group Gift -->
+    <div class="fs">👥 Group Gift</div>
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <input type="text" id="ctIn" placeholder="שם + אמוג'י" style="flex:1" onkeydown="if(event.key==='Enter')addCt()">
+      <button class="fb fb-w" style="flex-shrink:0;padding:8px 12px" onclick="addCt()">+</button>
+    </div>
+    <div class="ctags" id="ctTags"></div>
+
+    <!-- Message + STT -->
+    <div class="fs">✍️ מכתב הקדשה</div>
+    <div class="pres">
+      <button class="prb" onclick="loadPr('bat')">🕍 בת מצווה</button>
+      <button class="prb" onclick="loadPr('bar')">✡️ בר מצווה</button>
+      <button class="prb" onclick="loadPr('bday')">🎂 יום הולדת</button>
+      <button class="prb" onclick="loadPr('love')">💕 אהבה</button>
+      <button class="prb" onclick="loadPr('pro')">🎯 מקצועי</button>
+    </div>
+    <div class="fld">
+      <div class="msg-wrap stt-row">
+        <textarea id="message" rows="9" maxlength="3000"
+          placeholder="כתוב מכתב הקדשה אמיתי כאן... (עד 3000 תווים)&#10;&#10;אפשר גם להקליט בקול - לחץ על 🎤"
+          oninput="syncMsg()"></textarea>
+        <button class="stt-btn" id="sttBtn" onclick="toggleSTT()" title="הקלטת קול לטקסט">🎤</button>
+      </div>
+      <div class="cc" id="ccount">0 / 3000</div>
+    </div>
+    <div class="helper" id="sttStatus" style="color:var(--red);display:none">🔴 מאזין... דבר עכשיו</div>
+
+    <!-- Media -->
+    <div class="fs">🎬 מדיה</div>
+    <div class="fld"><label>Instagram - סרטון הכנה</label>
+      <input type="url" id="prepVideo" value="https://www.instagram.com/reel/" oninput="sync()"></div>
+    <div class="fld"><label>Rough Mix / Playback (Google Drive או URL)</label>
+      <input type="url" id="roughMix" placeholder="https://drive.google.com/file/d/.../view" oninput="sync()">
+      <div class="helper">לינק Drive יומר אוטומטית לנגינה ישירה ✓</div></div>
+
+    <!-- Gallery (post-session) -->
+    <div class="fs">🖼️ גלריית זיכרון (אחרי הסשן)</div>
+    <div class="row2">
+      <div class="fld"><label>תמונה 1</label><input type="url" id="galImg1" placeholder="URL" oninput="sync()"></div>
+      <div class="fld"><label>תמונה 2</label><input type="url" id="galImg2" placeholder="URL" oninput="sync()"></div>
+    </div>
+    <div class="fld"><label>הקלטה סופית (URL אודיו)</label>
+      <input type="url" id="galAudio" placeholder="https://..." oninput="sync()"></div>
+
+    <!-- Console -->
+    <div class="fs">⚙️ לוח בקרה</div>
+    <div class="console">
+      <div class="console-lbl">Yakir Cohen Productions · Control Surface</div>
+      <div class="crows">
+        <div class="crow">
+          <button class="fb fb-g" onclick="openPayment()"><div class="led lg"></div>💳 שלח לתשלום</button>
+          <button class="fb fb-a" onclick="copyLink()"><div class="led la"></div>🔗 קישור</button>
+          <button class="fb fb-a" onclick="sendWA()"><div class="led la"></div>📱 WA</button>
+        </div>
+        <div class="crow">
+          <button class="fb fb-b" onclick="saveImg()"><div class="led lb"></div>📷 PNG</button>
+          <button class="fb fb-b" onclick="saveStory()"><div class="led lb"></div>📱 סטורי</button>
+          <button class="fb fb-w" onclick="window.print()"><div class="led" style="background:#ccc"></div>🖨️ הדפס</button>
+        </div>
+        <div class="crow">
+          <button class="fb fb-w" onclick="genCal()"><div class="led" style="background:#ccc"></div>📅 יומן</button>
+          <button class="fb fb-w" onclick="exportHTML()"><div class="led" style="background:#ccc"></div>💾 HTML</button>
+          <button class="fb fb-r" onclick="resetAll()" style="opacity:.75"><div class="led lr"></div>🔄 אפס</button>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ══ PREVIEW PANEL ══ -->
+  <main class="pp">
+    <div class="pv-hdr">
+      <div class="pv-lbl">Live Preview · Auto Sync</div>
+      <div style="font-size:.58rem;color:rgba(255,255,255,.2);letter-spacing:1px" id="pidDisplay"></div>
+    </div>
+    <div class="vstage"><div class="vstage-inner" id="previewWrap"></div></div>
+  </main>
+</div>
+
+<!-- ═══════════ PAYMENT MODAL ═══════════ -->
+<div class="modal-bg" id="payModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closePayment()">✕ סגור</button>
+    <div class="modal-title">💳 שליחה לתשלום</div>
+    <div class="modal-sub">הלינק יפתח ישירות לחשבונית ירוקה -<br>הלקוח יראה בדיוק על מה הוא משלם.</div>
+
+    <div class="pay-summary" id="paySummary">
+      <div class="pay-row"><label>נמען</label><span id="psSummaryName">-</span></div>
+      <div class="pay-row"><label>חבילה</label><span id="psSummaryPkg">-</span></div>
+      <div class="pay-row total"><label>לתשלום</label><span id="psSummaryPrice">-</span></div>
+    </div>
+
+    <div class="pay-msg">
+      <strong>ההודעה שתלווה את הקישור ללקוח (WhatsApp):</strong><br><br>
+      <span id="payMsgPreview"></span>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <div class="fld" style="margin-bottom:0">
+        <label style="font-size:.6rem;color:var(--silver);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;display:block">אמצעי תשלום מקובלים</label>
+        <div class="pay-methods">
+          <div class="pm"><span class="pm-icon">💳</span>ויזה</div>
+          <div class="pm"><span class="pm-icon">💳</span>ישראכרט</div>
+          <div class="pm"><span class="pm-icon">💳</span>מסטרקארד</div>
+          <div class="pm"><span class="pm-icon">📱</span>Bit</div>
+          <div class="pm"><span class="pm-icon">📦</span>PayBox</div>
+          <div class="pm"><span class="pm-icon">🔵</span>PayPal</div>
+          <div class="pm"><span class="pm-icon">🏦</span>העברה בנקאית</div>
+          <div class="pm"><span class="pm-icon">📄</span>צ'ק</div>
+          <div class="pm"><span class="pm-icon">🍎</span>Apple Pay</div>
+          <div class="pm"><span class="pm-icon">🤖</span>Google Pay</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="pay-confirm-btn" id="payBtn" onclick="doPayment()">
+      🔐 פתח חשבונית ירוקה לתשלום
+    </button>
+    <div class="helper" style="margin-top:8px;text-align:center">
+      לאחר שהלקוח שילם - חזור לכאן ולחץ "אשר תשלום"
+    </div>
+
+    <!-- After payment confirmation -->
+    <div style="margin-top:14px;display:flex;gap:8px;justify-content:center">
+      <button class="fb fb-g" onclick="confirmPayment()"><div class="led lg"></div>✅ אשר - שולם בכרטיס</button>
+      <button class="fb fb-a" onclick="sendPaymentWA()"><div class="led la"></div>📱 שלח WA ללקוח</button>
+    </div>
+
+    <!-- Password box -->
+    <div class="pwd-box" id="pwdBox">
+      <div class="pwd-label">✅ תשלום אושר - סיסמת עיצוב</div>
+      <div class="pwd-code" id="pwdCode">-</div>
+      <div class="pwd-actions">
+        <button class="fb fb-g" onclick="copyPwd()"><div class="led lg"></div>📋 העתק</button>
+        <button class="fb fb-a" onclick="sendPwdWA()"><div class="led la"></div>📱 שלח בWA</button>
+        <button class="fb fb-b" onclick="closePayment(); buildVoucherLink()"><div class="led lb"></div>🎨 לעיצוב</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ════════════════════════════════════════════
+   CONSTANTS
+════════════════════════════════════════════ */
+const LOGO = 'https://lh3.googleusercontent.com/sitesv/APaQ0STQv7BhuANWyTWJl9yCKqozK2QUJALzupkij4nzjDE9RTMB1jPnUbPDcQ2wxzXLQ53nCfVtR2_2luuJ9WIESUmASqhKHRkbjlImDF4FhO_unTvLFFeYXrKBPliD8f0Bt7sgM6WIBaY8vqvEgOwlaztpJDy4rzswM-wM-GzopxTSk5Vk8VPRTWyPFoA=w16383';
+
+// 🔑 שנה לסיסמה שלך
+const ADMIN_PASS = 'yakir2026';
+
+// 💳 הכנס את לינקי חשבונית ירוקה שלך כאן
+const PAY_LINKS = {
+  basic:  'https://mrng.to/az6dR8yZoH',
+  silver: 'https://mrng.to/bEmvs34vnj',
+  vip:    'https://mrng.to/R1nx1cDPdZ',
+};
+
+// 📱 מספר הווטסאפ שלך (ללא +)
+const WA_NUMBER = '972501234567';
+
+const PKGS = [
+  {key:'basic',  name:'חבילת בסיס',   price:'₪990',   num:990,
+   desc:'הקלטה מקצועית · עריכה · קובץ WAV/MP3'},
+  {key:'silver', name:'חבילת Silver', price:'₪1,480', num:1480,
+   desc:'Melodyne · הכוונה · חימום קולי · תמונה מהסשן'},
+  {key:'vip',    name:'חבילת VIP 👑', price:'₪2,380', num:2380,
+   desc:'Silver + קליפ וידאו · 2 זוויות · עריכה מלאה'},
+];
+
+const PRESETS = {
+  bat:`אהובתנו,
+
+עיינינו בשנים שעברו ובכל מה שצמחת להיות - ואיך שלא מסתכלים עליך, אנחנו רואים אישה צעירה מלאת חן, כוח וכישרון שאין לו שיעור.
+
+הבת מצווה שלך אינה רק אבן דרך - היא תזכורת שהגיע הזמן שהעולם ישמע את הקול שלך.
+
+הקול הזה שאנחנו שומעים כבר שנים - הגיע הזמן שיצא החוצה ויגע בלבבות אחרים.
+
+השובר הזה הוא לא רק מתנה. הוא אמירה: אנחנו מאמינים בך, אנחנו גאים בך.`,
+
+  bar:`בני האהוב,
+
+אתה עומד על הסף של הפרק החדש בחייך - ואנחנו פה, מחזיקים אותך בגאווה עצומה.
+
+הבר מצווה שלך לימדה אותנו שוב שאתה בנוי מחוזקה, מאמונה, ומשמחת חיים שמדבקת את כל הסובבים אותך.
+
+ועכשיו, הגיע הזמן לתת לעולם עוד חלק ממך - הקול שלך, השיר שלך, הסיפור שלך.`,
+
+  bday:`יקירי/ה,
+
+יום הולדת הוא לא רק אירוע - הוא הזמן לשאול: מה אני רוצה שהשנה הבאה תביא לי?
+
+אנחנו יודעים מה אתה/את רוצה - אפילו אם עוד לא אמרת את זה בקול.
+
+הנה שנה שבה תוכל/י לעשות את זה: להיכנס לאולפן, להיות שקוע/ה בצליל, ולצאת עם משהו שייקח איתך לכל החיים.`,
+
+  love:`אהובי/אהובתי,
+
+כשאני שומע/ת אותך שר/שרה, משהו בתוכי עוצר לרגע ומאזין. לא כי זה יפה - אלא כי זה אתה/את. לגמרי, ללא פחד, ללא חומות.
+
+הקדשתי לך את השובר הזה כי אני רוצה שגם עולם ישמע מה אני שומע/ת כל יום.
+
+תן/תני לקול שלך לצאת.`,
+
+  pro:`לכבודך,
+
+מוגש בזה שובר לחוויית הקלטה מקצועית באולפן יקיר כהן.
+
+תקבל סביבה מקצועית, כלים ברמה הגבוהה ביותר, והכוונה אישית שתוציא ממך את המיטב.
+
+מחכים לשמוע אותך.`
+};
+
+/* ════════════════════════════════════════════
+   STATE
+════════════════════════════════════════════ */
+function genPid(){return 'YC-'+new Date().getFullYear()+'-'+Math.random().toString(36).substr(2,4).toUpperCase();}
+let S={
+  tpl:0,pkg:1,toName:'',salutation:'',fromName:'',fromRole:'',
+  ltrDate:'',address:'עמק איילון 34, מודיעין',vDate:'',
+  message:'',contribs:[],hidePrice:false,
+  prepVideo:'',roughMix:'',galImg1:'',galImg2:'',galAudio:'',
+  projectId:genPid(),issueDate:new Date().toISOString()
+};
+const $=id=>document.getElementById(id);
+
+/* ════════════════════════════════════════════
+   GATE
+════════════════════════════════════════════ */
+function checkGate(){
+  const v=$('gatePass').value;
+  if(v===ADMIN_PASS){
+    $('gate').classList.add('hidden');
+    $('adminBar').style.display='flex';
+    $('adminView').style.display='flex';
+    selTpl(0);selPkg(1);renderPreview();
+  } else {
+    $('gateErr').classList.add('show');
+    $('gatePass').value='';
+    setTimeout(()=>$('gateErr').classList.remove('show'),2500);
+  }
+}
+
+/* ════════════════════════════════════════════
+   SYNC & SELECTORS
+════════════════════════════════════════════ */
+function sync(){
+  S.toName   =$('toName').value;
+  S.salutation=$('salutation').value;
+  S.fromName =$('fromName').value;
+  S.fromRole =$('fromRole').value;
+  S.ltrDate  =$('ltrDate').value;
+  S.address  =$('address').value;
+  S.vDate    =$('vDate').value;
+  S.prepVideo=$('prepVideo').value;
+  S.roughMix =$('roughMix').value;
+  S.galImg1  =$('galImg1').value;
+  S.galImg2  =$('galImg2').value;
+  S.galAudio =$('galAudio').value;
+  S.hidePrice=$('hidePrice').checked;
+  renderPreview();
+}
+function syncMsg(){
+  S.message=$('message').value;
+  const n=S.message.length;
+  const cc=$('ccount');
+  cc.textContent=`${n} / 3000`;
+  cc.className='cc'+(n>=3000?' o':n>=2500?' w':'');
+  renderPreview();
+}
+function selTpl(i){
+  S.tpl=i;
+  for(let j=0;j<3;j++)$(`tpl${j}`).classList.toggle('on',j===i);
+  renderPreview();
+}
+function selPkg(i){
+  S.pkg=i;
+  for(let j=0;j<3;j++)$(`pkg${j}`).classList.toggle('on',j===i);
+  renderPreview();
+}
+function loadPr(k){$('message').value=PRESETS[k];S.message=PRESETS[k];syncMsg();}
+function addCt(){
+  const inp=$('ctIn'),v=inp.value.trim();if(!v)return;
+  S.contribs.push(v);inp.value='';renderCtTags();renderPreview();
+}
+function removeCt(i){S.contribs.splice(i,1);renderCtTags();renderPreview();}
+function renderCtTags(){
+  $('ctTags').innerHTML=S.contribs.map((n,i)=>
+    `<div class="ctag">${n}<span class="rm" onclick="removeCt(${i})">✕</span></div>`).join('');
+}
+
+/* ════════════════════════════════════════════
+   SPEECH TO TEXT
+════════════════════════════════════════════ */
+let recognition=null,listening=false;
+function toggleSTT(){
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){
+    toast('הדפדפן לא תומך בזיהוי קול - נסה ב-Chrome');return;
+  }
+  if(listening){
+    recognition?.stop();listening=false;
+    $('sttBtn').classList.remove('listening');
+    $('sttStatus').style.display='none';
+    return;
+  }
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recognition=new SR();
+  recognition.lang='he-IL';
+  recognition.continuous=true;
+  recognition.interimResults=true;
+  const base=$('message').value;
+  recognition.onresult=e=>{
+    let interim='',final='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal)final+=e.results[i][0].transcript;
+      else interim+=e.results[i][0].transcript;
+    }
+    $('message').value=base+(final||interim);
+    S.message=$('message').value;syncMsg();
+  };
+  recognition.onerror=()=>{listening=false;$('sttBtn').classList.remove('listening');$('sttStatus').style.display='none';};
+  recognition.onend=()=>{
+    if(listening){recognition.start();}
+    else{$('sttBtn').classList.remove('listening');$('sttStatus').style.display='none';}
+  };
+  recognition.start();
+  listening=true;
+  $('sttBtn').classList.add('listening');
+  $('sttStatus').style.display='block';
+}
+
+/* ════════════════════════════════════════════
+   SMART PASSWORD GEN
+════════════════════════════════════════════ */
+function hebrewToLatin(s){
+  const m={'א':'A','ב':'B','ג':'G','ד':'D','ה':'H','ו':'V','ז':'Z','ח':'CH','ט':'T','י':'Y',
+    'כ':'K','ך':'K','ל':'L','מ':'M','ם':'M','נ':'N','ן':'N','ס':'S','ע':'A','פ':'P','ף':'P',
+    'צ':'TS','ץ':'TS','ק':'K','ר':'R','ש':'SH','ת':'T',' ':''};
+  return s.split('').map(c=>m[c]||c.toUpperCase()).join('').replace(/[^A-Z]/g,'').substr(0,3);
+}
+function genPwd(){
+  const prefix=hebrewToLatin(S.toName||'YAK').padEnd(3,'X').substr(0,3);
+  const yr=new Date().getFullYear();
+  const rnd=Math.random().toString(36).substr(2,3).toUpperCase();
+  return `${prefix}-${yr}-${rnd}`;
+}
+
+/* ════════════════════════════════════════════
+   GOOGLE DRIVE CONVERTER
+════════════════════════════════════════════ */
+function driveDirect(url){
+  if(!url)return'';
+  const m=url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  return m?`https://drive.google.com/uc?export=download&id=${m[1]}`:url;
+}
+
+/* ════════════════════════════════════════════
+   ENCODE / DECODE
+════════════════════════════════════════════ */
+function enc(){
+  const a=[S.tpl,S.pkg,S.toName,S.salutation,S.fromName,S.fromRole,S.ltrDate,
+           S.address,S.vDate,S.message,S.contribs.join('|'),S.hidePrice?1:0,
+           S.prepVideo,S.roughMix,S.galImg1,S.galImg2,S.galAudio,
+           S.projectId,S.issueDate,''];// last slot: password (set by receiver)
+  try{return btoa(unescape(encodeURIComponent(JSON.stringify(a))));}
+  catch(e){return btoa(JSON.stringify(a));}
+}
+function encWithPwd(pwd){
+  const a=[S.tpl,S.pkg,S.toName,S.salutation,S.fromName,S.fromRole,S.ltrDate,
+           S.address,S.vDate,S.message,S.contribs.join('|'),S.hidePrice?1:0,
+           S.prepVideo,S.roughMix,S.galImg1,S.galImg2,S.galAudio,
+           S.projectId,S.issueDate,pwd];
+  try{return btoa(unescape(encodeURIComponent(JSON.stringify(a))));}
+  catch(e){return btoa(JSON.stringify(a));}
+}
+
+/* ════════════════════════════════════════════
+   PAYMENT MODAL
+════════════════════════════════════════════ */
+function openPayment(){
+  sync();
+  const pkg=PKGS[S.pkg];
+  $('psSummaryName').textContent=S.toName||'-';
+  $('psSummaryPkg').textContent=pkg.name;
+  $('psSummaryPrice').textContent=pkg.price;
+  // Payment WhatsApp message preview
+  const msg=buildPayWAMsg(pkg);
+  $('payMsgPreview').textContent=msg;
+  $('pwdBox').classList.remove('show');
+  $('payModal').classList.add('open');
+}
+function closePayment(){$('payModal').classList.remove('open');}
+function buildPayWAMsg(pkg){
+  return `שלום! 😊\n\nהכנתי עבורך שובר הקלטה מיוחד באולפן יקיר כהן הפקות.\n\n🎤 ${pkg.name} - ${pkg.price}\n📍 ${S.address||'עמק איילון 34, מודיעין'}\n\nלתשלום מאובטח ונוח (ויזה, ישראכרט, Bit, PayBox, PayPal ועוד):\n👇 לחץ על הקישור ומלא פרטים - תדע בדיוק על מה אתה משלם.\n\n[קישור תשלום]`;
+}
+function doPayment(){
+  const key=PKGS[S.pkg].key;
+  const link=PAY_LINKS[key];
+  if(!link||link.includes('invoiceguru.co.il/pay/basic')){
+    // placeholder - replace with real links
+    toast('⚠️ הוסף את לינקי חשבונית ירוקה בקוד (PAY_LINKS)');
+    return;
+  }
+  window.open(link,'_blank');
+  toast('✅ חשבונית ירוקה נפתחה בטאב חדש');
+}
+function confirmPayment(){
+  const pwd=genPwd();
+  $('pwdCode').textContent=pwd;
+  $('pwdBox').classList.add('show');
+  S._lastPwd=pwd;
+  toast('✅ תשלום אושר! סיסמה נוצרה');
+}
+function copyPwd(){
+  navigator.clipboard.writeText(S._lastPwd||'').then(()=>toast('📋 סיסמה הועתקה!'));
+}
+function sendPwdWA(){
+  const pwd=S._lastPwd||'-';
+  const url=buildVoucherUrl(pwd);
+  const msg=`היי ${S.toName||''}! 🎁\n\nתשלום התקבל ✅\n\nקוד גישה לשובר: *${pwd}*\n\nלפתיחת המכתב:\n${url}\n\n_יקיר כהן הפקות 🎤_`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank');
+}
+function buildVoucherUrl(pwd){
+  const data=encWithPwd(pwd);
+  return `${location.origin}/voucher.html?data=${data}`;
+}
+function buildVoucherLink(){
+  const pwd=S._lastPwd;
+  if(!pwd){toast('קודם אשר תשלום');return;}
+  const url=buildVoucherUrl(pwd);
+  navigator.clipboard.writeText(url).then(()=>toast('🔗 קישור עם סיסמה הועתק!'));
+}
+function sendPaymentWA(){
+  const pkg=PKGS[S.pkg];
+  const payLink=PAY_LINKS[pkg.key]||'[לינק תשלום]';
+  const msg=buildPayWAMsg(pkg).replace('[קישור תשלום]',payLink);
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank');
+}
+
+/* ════════════════════════════════════════════
+   RENDER LIVE PREVIEW
+════════════════════════════════════════════ */
+function renderPreview(){
+  const pkg=PKGS[S.pkg];
+  const w=$('previewWrap');
+  if(!w)return;
+  $('pidDisplay').textContent=S.projectId;
+
+  // Template styles
+  const tplBg=['#ffffff','#fff8f8','#ffffff'][S.tpl];
+  const tplAccent=['#c8102e','#c8102e','#c8102e'][S.tpl];
+  const topBorderColor=['#1a1a1a','#c8102e','#c8102e'][S.tpl];
+
+  w.innerHTML=`
+  <div class="v-card" style="border-top:3px solid ${topBorderColor}">
+    <div class="v-letter" style="background:${tplBg}">
+      <div class="v-ltr-logo">
+        <img src="${LOGO}" alt="יקיר כהן" onerror="this.style.display='none'" style="height:32px">
+      </div>
+      ${S.ltrDate?`<div class="v-date">${S.ltrDate}</div>`:''}
+      ${S.address?`<div class="v-loc">${S.address}</div>`:''}
+      ${S.salutation?`<div class="v-salutation">${S.salutation}</div>`:''}
+      <div class="v-msg" style="border-color:${tplAccent}">${S.message||'<em style="color:#bbb;font-style:normal">המכתב שלך יופיע כאן...</em>'}</div>
+      <div class="v-sig-block">
+        <div class="v-sig-by">באהבה רבה,</div>
+        <div class="v-sig-name">${S.fromName||'-'}</div>
+        ${S.fromRole?`<div class="v-sig-role">${S.fromRole}</div>`:''}
+      </div>
+    </div>
+    <div class="v-voucher-frame">
+      <div class="v-vc">
+        <div class="v-vc-hdr">
+          <img src="${LOGO}" alt="" onerror="this.style.display='none'">
+          <span class="v-vc-badge">GIFT VOUCHER · שובר מתנה</span>
+        </div>
+        <div class="v-vc-body">
+          <div class="v-vc-pkg">${pkg.name}</div>
+          ${!S.hidePrice?`<div class="v-vc-price">${pkg.price}</div>`:''}
+          <div class="v-vc-desc">${pkg.desc}</div>
+          <div class="v-vc-meta">
+            <div class="v-vc-meta-item"><label>ל:</label><span>${S.toName||'-'}</span></div>
+            <div class="v-vc-meta-item"><label>מאת:</label><span>${S.fromName||'-'}</span></div>
+            <div class="v-vc-meta-item"><label>תוקף:</label><span>${S.vDate||'-'}</span></div>
+            <div class="v-vc-meta-item"><label>מזהה:</label><span style="font-size:.68rem;letter-spacing:.5px">${S.projectId}</span></div>
+          </div>
+          <div style="margin-top:11px;font-size:.7rem;color:#6a6a6a">
+            📍 ${S.address||'-'} · <a href="https://waze.com/ul?q=${encodeURIComponent(S.address||'יקיר כהן מודיעין')}" target="_blank" style="color:${tplAccent}">פתח בוויז ←</a>
+          </div>
+          ${S.contribs.length?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px">
+            ${S.contribs.map(c=>`<span style="background:#f4f4f4;border:1px solid #e8e8e8;border-radius:100px;padding:2px 8px;font-size:.62rem;color:#3a3a3a">${c}</span>`).join('')}
+          </div>`:''}
+        </div>
+        <div class="v-vc-ft">בתוקף לשנה | אין כפל מבצעים | אנחנו כבר מתרגשים 😄</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ════════════════════════════════════════════
+   EXPORT FUNCTIONS
+════════════════════════════════════════════ */
+function copyLink(){
+  sync();
+  const url=`${location.origin}/voucher.html?data=${enc()}`;
+  navigator.clipboard.writeText(url).then(()=>toast('🔗 קישור הועתק (ללא סיסמה)'));
+}
+function sendWA(){
+  sync();
+  const url=`${location.origin}/voucher.html?data=${enc()}`;
+  const pkg=PKGS[S.pkg];
+  const t=`🎁 *שובר מתנה – יקיר כהן הפקות*\n\nל${S.toName||'הנמען'} 🎤\n${pkg.name}${S.hidePrice?'':` (${pkg.price})`}\n\n✨ לפתיחת המכתב:\n${url}\n\n_${S.address||'עמק איילון 34, מודיעין'}_`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(t)}`,'_blank');
+}
+function saveImg(){
+  const el=$('previewWrap');if(!el){toast('אין תצוגה מקדימה');return;}
+  toast('⏳ מייצא PNG...');
+  html2canvas(el,{scale:3,useCORS:true,backgroundColor:'#ffffff',allowTaint:true})
+    .then(cv=>{
+      const a=document.createElement('a');
+      a.href=cv.toDataURL('image/png');
+      a.download=`yakir-letter-${S.toName||'voucher'}-${Date.now()}.png`;
+      a.click();toast('✅ PNG נשמר!');
+    }).catch(()=>toast('⚠️ שגיאה'));
+}
+function saveStory(){
+  const el=$('previewWrap');if(!el){toast('אין תצוגה מקדימה');return;}
+  toast('⏳ יוצר סטורי...');
+  html2canvas(el,{scale:3,useCORS:true,backgroundColor:'#ffffff',allowTaint:true})
+    .then(cv=>{
+      const sc=document.createElement('canvas');
+      sc.width=1080;sc.height=1920;
+      const ctx=sc.getContext('2d');
+      ctx.fillStyle='#fafaf8';ctx.fillRect(0,0,1080,1920);
+      const r=Math.min(1080/cv.width,1500/cv.height);
+      ctx.drawImage(cv,(1080-cv.width*r)/2,(1920-cv.height*r)/2,cv.width*r,cv.height*r);
+      const a=document.createElement('a');
+      a.href=sc.toDataURL('image/png');
+      a.download=`yakir-story-${Date.now()}.png`;
+      a.click();toast('✅ סטורי 9:16 נשמר!');
+    }).catch(()=>toast('⚠️ שגיאה'));
+}
+function exportHTML(){
+  sync();
+  const url=`${location.origin}/voucher.html?data=${enc()}`;
+  const html=`<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="0;url=${url}"><title>פותח מכתב...</title><style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#fafaf8;color:#1a1a1a;text-align:center;}</style></head><body><p>פותח מכתב...<br><a href="${url}">לחץ אם לא נפתח אוטומטית</a></p></body></html>`;
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([html],{type:'text/html;charset=utf-8'}));
+  a.download=`yakir-${S.toName||'voucher'}.html`;
+  a.click();toast('💾 HTML ייוצא!');
+}
+function genCal(){
+  const now=new Date();
+  const s=now.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
+  const e2=new Date(now.getTime()+7200000).toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
+  const ics=['BEGIN:VCALENDAR','VERSION:2.0','BEGIN:VEVENT',
+    `UID:${S.projectId}@yakircohen.com`,`DTSTART:${s}`,`DTEND:${e2}`,
+    `SUMMARY:הקלטה – ${S.toName||'לקוח'} | יקיר כהן`,
+    `LOCATION:${S.address}`,`DESCRIPTION:${PKGS[S.pkg].name} · ${S.projectId}`,
+    'END:VEVENT','END:VCALENDAR'].join('\r\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([ics],{type:'text/calendar;charset=utf-8'}));
+  a.download=`yakir-${S.toName||'session'}.ics`;
+  a.click();toast('📅 יומן הורד!');
+}
+function resetAll(){
+  S={tpl:0,pkg:1,toName:'',salutation:'',fromName:'',fromRole:'',
+     ltrDate:'',address:'עמק איילון 34, מודיעין',vDate:'',
+     message:'',contribs:[],hidePrice:false,
+     prepVideo:'',roughMix:'',galImg1:'',galImg2:'',galAudio:'',
+     projectId:genPid(),issueDate:new Date().toISOString()};
+  ['toName','salutation','fromName','fromRole','ltrDate','vDate','message',
+   'roughMix','galImg1','galImg2','galAudio','prepVideo'].forEach(id=>{const e=$(id);if(e)e.value='';});
+  $('address').value='עמק איילון 34, מודיעין';
+  $('hidePrice').checked=false;
+  $('ccount').textContent='0 / 3000';
+  $('ctTags').innerHTML='';
+  selTpl(0);selPkg(1);renderPreview();
+  toast('🔄 אופס לברירות מחדל!');
+}
+
+/* ════════════════════════════════════════════
+   TOAST + IFRAME RESIZER
+════════════════════════════════════════════ */
+function toast(msg){
+  const el=$('toast');el.textContent=msg;el.classList.add('show');
+  clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),3200);
+}
+function reportHeight(){
+  const h=document.body.scrollHeight;
+  window.parent.postMessage({frameHeight:h},'*');
+}
+window.addEventListener('load',reportHeight);
+window.addEventListener('resize',reportHeight);
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+# Cloudflare Pages Redirects
+# Voucher short links
+/v/:code  /voucher.html?data=:code  200
+
+# Fallback
+/*  /voucher.html  200
