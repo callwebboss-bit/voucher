@@ -1,0 +1,20 @@
+# ═══════════════════════════════════════════════════════════════
+# robots.txt – יקיר כהן הפקות | VIP Portal
+# 2026-03-14 | Version: 1.0
+#
+# כל הדפים מוגנים – אין אינדוס לגוגל/בינגים
+# All pages are private – no public indexing
+# ═══════════════════════════════════════════════════════════════
+
+# Block ALL crawlers from everything
+User-agent: *
+Disallow: /
+
+# Specifically block the private portal pages
+Disallow: /portal.html
+Disallow: /admin.html
+Disallow: /creator.html
+Disallow: /view.html
+Disallow: /index.html
+
+# No sitemap – private portal, not a public website

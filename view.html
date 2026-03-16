@@ -347,7 +347,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
   <div class="code-reveal" id="codeReveal" style="display:none;">
     <div class="cr-left">
       <span class="cr-lbl">קוד השובר שלך</span>
-      <div class="cr-code" id="crCode">—</div>
+      <div class="cr-code" id="crCode">-</div>
     </div>
     <button class="cr-copy" onclick="copyCode()">העתק קוד</button>
   </div>
@@ -355,14 +355,19 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
   <!-- Info cards -->
   <div class="info-cards" id="infoCards"></div>
 
+  <!-- Upgrades (shown if present in voucher data) -->
+  <div id="upgradesDisplay" style="display:none;margin:0 auto 20px;max-width:420px;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:14px;padding:16px 18px;">
+    <p style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(201,168,76,0.7);margin-bottom:10px;">⚡ שדרוגים כלולים בשובר</p>
+    <div id="upgradesList"></div>
+  </div>
+
   <!-- Actions -->
   <div class="actions">
     <a class="act-primary" id="waBtn" href="#" target="_blank">
-      📞 תאם סשן עם יקיר עכשיו
+      📞 תאם סשן עם יקיר – 0587555456
     </a>
     <div class="act-row">
-      <button class="act-sec" onclick="saveImg()">💾 שמור תמונה</button>
-      <button class="act-sec" onclick="shareVoucher()">📤 שתף</button>
+      <button class="act-sec" onclick="shareVoucher()">📤 שתף את השובר</button>
     </div>
   </div>
 
@@ -387,12 +392,12 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
    CONFIG
 ══════════════════════════════════════ */
 const CFG = {
-  WA_YAKIR: '972501234567',  // ← מספר הוואטסאפ של יקיר
+  WA_YAKIR: '972587555456',  // ← מספר הוואטסאפ של יקיר (0587555456)
   STUDIO_NAME: 'יקיר כהן הפקות',
   PKGS: {
-    0: { name:'חבילת בסיס',   price:'₪990',   desc:'2 שעות הקלטה · מיקס · מסטרינג' },
-    1: { name:'חבילת Silver', price:'₪1,480', desc:'4 שעות הקלטה · מיקס · מסטרינג · וידאו' },
-    2: { name:'חבילת VIP 👑', price:'₪2,380', desc:'יום שלם · מיקס · מסטרינג · הפקה מלאה' },
+    0: { name:'חבילת בסיס',   desc:'מיקס · מסטרינג · הקלטה מקצועית' },
+    1: { name:'חבילת Silver', desc:'מיקס · מסטרינג · הקלטה + וידאו' },
+    2: { name:'חבילת VIP 👑', desc:'יום שלם · מיקס · מסטרינג · הפקה מלאה' },
   },
 };
 
@@ -489,7 +494,7 @@ function showVoucher() {
       <div class="v-body">
         <div class="v-tolbl">שובר מתנה עבור</div>
         <div class="v-name">${esc(name)}</div>
-        <div class="v-pkgname">${esc(p.name)} · ${esc(p.price)}</div>
+        <div class="v-pkgname">${esc(p.name)}</div>
         <div class="v-pkgdesc">${esc(p.desc)}</div>
         ${D.message ? `<div class="v-msg">${esc(D.message).replace(/\n/g,'<br>')}</div>` : ''}
       </div>
@@ -512,7 +517,7 @@ function showVoucher() {
   const cards = [];
   if (D.datetime) cards.push({ ico:'📅', lbl:'תאריך ושעה', val:D.datetime });
   if (D.address)  cards.push({ ico:'📍', lbl:'מיקום האולפן', val:D.address });
-  cards.push({ ico:'💎', lbl:'החבילה שלך', val:`${p.name} · ${p.price}` });
+  cards.push({ ico:'💎', lbl:'החבילה שלך', val:p.name });
   
   document.getElementById('infoCards').innerHTML = cards.map(c =>
     `<div class="ic">
@@ -524,8 +529,27 @@ function showVoucher() {
     </div>`
   ).join('');
   
+  // Upgrades display
+  const UPGRADE_LABELS = {
+    archive: 'ארכיון דיגיטלי לנצח 💾',
+    clip:    'קליפ זיכרון מהסשן 🎬',
+  };
+  const upgrades = Array.isArray(D.upgrades) ? D.upgrades : [];
+  if (upgrades.length) {
+    const ul = document.getElementById('upgradesDisplay');
+    const li = document.getElementById('upgradesList');
+    ul.style.display = 'block';
+    li.innerHTML = upgrades.map(id =>
+      `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(201,168,76,0.1);">
+        <span style="color:#c9a84c;font-size:12px;font-weight:800;">✦</span>
+        <span style="font-size:13px;font-weight:600;color:#ede8ff;">${UPGRADE_LABELS[id]||id}</span>
+      </div>`
+    ).join('');
+  }
+
   // WA button
-  const waMsg = `שלום יקיר! 👋\nקיבלתי שובר הקלטה: ${p.name}\n${D.datetime ? `📅 ${D.datetime}\n` : ''}${D.code ? `🔑 קוד: ${D.code}\n` : ''}\nרוצה לתאם סשן 🎤`;
+  const upgStr = upgrades.length ? '\n⚡ שדרוגים: ' + upgrades.map(id => UPGRADE_LABELS[id]||id).join(', ') : '';
+  const waMsg = `שלום יקיר! 👋\nקיבלתי שובר הקלטה: ${p.name}${upgStr}\n${D.datetime ? `📅 ${D.datetime}\n` : ''}${D.code ? `🔑 קוד: ${D.code}\n` : ''}\nרוצה לתאם סשן 🎤\n0587555456`;
   document.getElementById('waBtn').href = `https://wa.me/${CFG.WA_YAKIR}?text=${encodeURIComponent(waMsg)}`;
   
   // Second confetti burst
@@ -542,7 +566,7 @@ function launchConfetti() {
   cv.width = innerWidth; cv.height = innerHeight;
   const ctx = cv.getContext('2d');
   const pts = [];
-  for (let i = 0; i < 70; i++) {
+  for (let i = 0; i < 40; i++) {
     pts.push({
       x: Math.random() * cv.width,
       y: Math.random() * cv.height * 0.3 - 30,
@@ -591,116 +615,6 @@ function shareVoucher() {
   }
 }
 
-async function saveImg() {
-  toast('⏳ מייצר תמונה...');
-  await document.fonts.ready;
-
-  const p = CFG.PKGS[D?.pkg||1];
-  const name = D?.toName || 'שמך כאן';
-  const tpl = D?.tpl || 0;
-
-  const TPL_C = [
-    {bg1:'#060412',bg2:'#0e0b28',gold:'#c9a84c',text:'#ede8ff',muted:'rgba(237,232,255,0.5)',border:'rgba(201,168,76,0.28)'},
-    {bg1:'#12062a',bg2:'#2d0d4e',gold:'#d4a8e8',text:'#f0e8ff',muted:'rgba(240,232,255,0.5)',border:'rgba(212,168,232,0.28)'},
-    {bg1:'#071022',bg2:'#0e2040',gold:'#c9a84c',text:'#e8f0ff',muted:'rgba(232,240,255,0.5)',border:'rgba(201,168,76,0.28)'},
-    {bg1:'#1a0c00',bg2:'#3d1f00',gold:'#f0b84c',text:'#fff5e8',muted:'rgba(255,245,232,0.5)',border:'rgba(240,184,76,0.28)'},
-    {bg1:'#f5f0e8',bg2:'#ede4d0',gold:'#6b4800',text:'#1a0c00',muted:'rgba(26,12,0,0.45)',border:'rgba(107,72,0,0.18)'},
-  ];
-  const c = TPL_C[tpl];
-
-  const cv = document.createElement('canvas');
-  cv.width = 1200; cv.height = 800;
-  const ctx = cv.getContext('2d');
-  ctx.direction = 'rtl';
-
-  const bgG = ctx.createLinearGradient(0,0,1200,800);
-  bgG.addColorStop(0,c.bg1); bgG.addColorStop(1,c.bg2);
-  ctx.fillStyle = bgG; ctx.fillRect(0,0,1200,800);
-
-  const gl = ctx.createRadialGradient(200,160,0,200,160,720);
-  gl.addColorStop(0,'rgba(201,168,76,0.07)'); gl.addColorStop(1,'transparent');
-  ctx.fillStyle = gl; ctx.fillRect(0,0,1200,800);
-
-  const pd = 60;
-  ctx.strokeStyle = c.border; ctx.lineWidth = 2;
-  ctx.strokeRect(pd,pd,1200-pd*2,800-pd*2);
-
-  const cs = 44;
-  ctx.strokeStyle = c.gold; ctx.lineWidth = 3;
-  [[pd,pd,1,1],[1200-pd,pd,-1,1],[pd,800-pd,1,-1],[1200-pd,800-pd,-1,-1]].forEach(([x,y,dx,dy])=>{
-    ctx.beginPath(); ctx.moveTo(x,y+dy*cs); ctx.lineTo(x,y); ctx.lineTo(x+dx*cs,y); ctx.stroke();
-  });
-
-  ctx.font = '64px sans-serif';
-  ctx.fillText('🎙', pd+45, pd+90);
-
-  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-  ctx.fillStyle = c.gold;
-  ctx.font = `700 28px 'Rajdhani','Heebo',sans-serif`;
-  ctx.fillText('יקיר כהן הפקות', 1200-pd-45, pd+65);
-  ctx.fillStyle = c.muted;
-  ctx.font = `20px 'Rajdhani','Heebo',sans-serif`;
-  ctx.fillText('PRODUCTIONS', 1200-pd-45, pd+95);
-
-  ctx.fillStyle = c.muted;
-  ctx.font = `24px 'Heebo',sans-serif`;
-  ctx.textBaseline = 'alphabetic';
-  ctx.fillText('שובר מתנה עבור', 1200-pd-45, 280);
-
-  ctx.fillStyle = c.gold;
-  ctx.font = `900 108px 'Frank Ruhl Libre','Heebo',serif`;
-  ctx.fillText(name, 1200-pd-45, 400);
-
-  ctx.fillStyle = c.text;
-  ctx.font = `700 34px 'Heebo',sans-serif`;
-  ctx.fillText(`${p.name} · ${p.price}`, 1200-pd-45, 455);
-
-  ctx.fillStyle = c.muted;
-  ctx.font = `24px 'Heebo',sans-serif`;
-  ctx.fillText(p.desc, 1200-pd-45, 492);
-
-  if (D?.message) {
-    ctx.strokeStyle = c.border; ctx.lineWidth = 4;
-    ctx.beginPath(); ctx.moveTo(1200-pd-30,525); ctx.lineTo(1200-pd-30,640); ctx.stroke();
-    ctx.fillStyle = c.muted;
-    ctx.font = `italic 24px 'Frank Ruhl Libre','Heebo',serif`;
-    const lines = wrapText(ctx, D.message, 840);
-    lines.slice(0,4).forEach((l,i) => ctx.fillText(l, 1200-pd-55, 540+i*36));
-  }
-
-  ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(pd+40,720); ctx.lineTo(1200-pd-40,720); ctx.stroke();
-
-  ctx.fillStyle = c.muted;
-  ctx.font = `22px 'Heebo',sans-serif`;
-  if (D?.datetime) ctx.fillText(`📅 ${D.datetime}`, 1200-pd-45, 750);
-  if (D?.address)  ctx.fillText(`📍 ${D.address}`,  1200-pd-45, 777);
-
-  if (D?.fromName) {
-    ctx.textAlign = 'left'; ctx.fillStyle = c.gold;
-    ctx.font = `26px 'Frank Ruhl Libre','Heebo',serif`;
-    ctx.fillText(D.fromName, pd+40, 770);
-    ctx.fillStyle = c.muted;
-    ctx.font = `17px 'Rajdhani',sans-serif`;
-    ctx.fillText('מאת', pd+40, 748);
-  }
-
-  const a = document.createElement('a');
-  a.href = cv.toDataURL('image/png');
-  a.download = `voucher-${name.replace(/\s/g,'-')}.png`;
-  a.click();
-  toast('✅ תמונה נשמרה!');
-}
-
-function wrapText(ctx, text, maxW) {
-  const words=text.split(' '); const lines=[]; let line='';
-  words.forEach(w=>{
-    const t=line?`${line} ${w}`:w;
-    if(ctx.measureText(t).width>maxW&&line){lines.push(line);line=w;}else line=t;
-  });
-  if(line)lines.push(line);
-  return lines;
-}
 
 /* ══════════════════════════════════════
    TOAST
@@ -730,12 +644,9 @@ window.addEventListener('DOMContentLoaded', () => {
   if (D.fromName) {
     document.getElementById('envFrom').textContent = `🎁 מ: ${D.fromName}`;
   }
-  
-  // Auto-open if embedded
-  const params = new URLSearchParams(location.search);
-  if (params.get('embedded') === 'true') {
-    setTimeout(openEnvelope, 500);
-  }
+
+  // Auto-open envelope after 800ms
+  setTimeout(openEnvelope, 800);
 });
 </script>
 </body>

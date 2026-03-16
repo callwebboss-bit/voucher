@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>מדריך מערכת VIP Portal – יקיר כהן הפקות</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, 'Segoe UI', Arial, sans-serif;
+      background: #F5F5F7;
+      color: #1d1d1f;
+      line-height: 1.7;
+      padding: 40px 20px 80px;
+    }
+    .container { max-width: 860px; margin: 0 auto; }
+
+    /* HEADER */
+    .doc-header {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d0a14 100%);
+      border-radius: 20px;
+      padding: 40px 44px;
+      margin-bottom: 36px;
+      color: white;
+    }
+    .doc-header .badge {
+      display: inline-block;
+      background: #FF2D55;
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 100px;
+      margin-bottom: 16px;
+    }
+    .doc-header h1 { font-size: 32px; font-weight: 800; line-height: 1.2; margin-bottom: 10px; }
+    .doc-header p  { font-size: 15px; color: rgba(255,255,255,0.6); }
+
+    /* TOC */
+    .toc {
+      background: white;
+      border: 1px solid #E5E5EA;
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 32px;
+    }
+    .toc h3 { font-size: 13px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #888; margin-bottom: 12px; }
+    .toc ol { padding-right: 18px; }
+    .toc li { margin-bottom: 5px; }
+    .toc a  { color: #FF2D55; text-decoration: none; font-size: 14px; font-weight: 500; }
+    .toc a:hover { text-decoration: underline; }
+
+    /* SECTIONS */
+    .section {
+      background: white;
+      border: 1px solid #E5E5EA;
+      border-radius: 16px;
+      padding: 32px 36px;
+      margin-bottom: 20px;
+    }
+    .section-num {
+      display: inline-block;
+      background: #FF2D55;
+      color: white;
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 800;
+      text-align: center;
+      line-height: 28px;
+      margin-left: 10px;
+      flex-shrink: 0;
+    }
+    .section h2 {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #F0F0F5;
+    }
+    .section h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #FF2D55;
+      margin: 22px 0 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .section p  { font-size: 14px; color: #444; margin-bottom: 10px; }
+    .section ul, .section ol { padding-right: 20px; margin-bottom: 12px; }
+    .section li { font-size: 14px; color: #444; margin-bottom: 5px; line-height: 1.65; }
+
+    /* CODE */
+    code {
+      background: #F5F5F7;
+      border: 1px solid #E5E5EA;
+      border-radius: 5px;
+      padding: 2px 7px;
+      font-family: 'SF Mono', Consolas, monospace;
+      font-size: 12px;
+      color: #FF2D55;
+      direction: ltr;
+      display: inline-block;
+    }
+    pre {
+      background: #1a1a1a;
+      border-radius: 10px;
+      padding: 18px 20px;
+      overflow-x: auto;
+      margin: 12px 0 16px;
+    }
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: #E5E5EA;
+      font-size: 12.5px;
+      line-height: 1.7;
+      direction: ltr;
+      text-align: left;
+    }
+
+    /* TABLE */
+    .tbl { width: 100%; border-collapse: collapse; margin: 12px 0 16px; font-size: 13px; }
+    .tbl th {
+      background: #F5F5F7;
+      padding: 9px 14px;
+      text-align: right;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #888;
+      border-bottom: 1px solid #E5E5EA;
+    }
+    .tbl td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #F0F0F5;
+      color: #333;
+      vertical-align: top;
+    }
+    .tbl tr:last-child td { border-bottom: none; }
+    .tbl code { font-size: 11px; }
+
+    /* ALERT BOXES */
+    .alert {
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-size: 13px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .alert-icon { font-size: 17px; flex-shrink: 0; margin-top: 1px; }
+    .alert.red   { background: rgba(255,45,85,0.07); border: 1px solid rgba(255,45,85,0.2); }
+    .alert.green { background: rgba(48,209,88,0.07); border: 1px solid rgba(48,209,88,0.2); }
+    .alert.blue  { background: rgba(10,132,255,0.07); border: 1px solid rgba(10,132,255,0.2); }
+    .alert.orange{ background: rgba(255,159,10,0.07); border: 1px solid rgba(255,159,10,0.2); }
+    .alert p { margin: 0; line-height: 1.55; color: #333; }
+    .alert strong { font-weight: 700; }
+
+    /* STEP FLOW */
+    .flow { display: flex; flex-direction: column; gap: 0; margin: 14px 0; }
+    .flow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px dashed #E5E5EA;
+    }
+    .flow-step:last-child { border-bottom: none; }
+    .flow-dot {
+      width: 32px; height: 32px;
+      background: #FF2D55;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 800; font-size: 13px;
+      flex-shrink: 0;
+    }
+    .flow-content h4 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+    .flow-content p  { font-size: 13px; color: #666; margin: 0; }
+
+    /* FILE TREE */
+    .file-tree {
+      background: #1a1a1a;
+      border-radius: 10px;
+      padding: 18px 20px;
+      font-family: 'SF Mono', Consolas, monospace;
+      font-size: 12.5px;
+      line-height: 1.9;
+      color: #E5E5EA;
+      direction: ltr;
+      text-align: left;
+      margin: 12px 0;
+    }
+    .file-tree .dir  { color: #0A84FF; }
+    .file-tree .html { color: #FF9F0A; }
+    .file-tree .conf { color: #30D158; }
+    .file-tree .note { color: #9E9EA8; font-style: italic; }
+
+    /* FOOTER */
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      color: #999;
+      font-size: 13px;
+    }
+    .footer strong { color: #FF2D55; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="doc-header">
+    <div class="badge">📋 מדריך מערכת</div>
+    <h1>VIP Portal – יקיר כהן הפקות</h1>
+    <p>מדריך הגדרה, תפעול ותחזוקה | גרסה 3.1 | עודכן 2026-03-14</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h3>📑 תוכן עניינים</h3>
+    <ol>
+      <li><a href="#overview">סקירת המערכת</a></li>
+      <li><a href="#files">מבנה קבצים</a></li>
+      <li><a href="#flow">איך זה עובד – זרימת משתמש</a></li>
+      <li><a href="#setup">הגדרה ראשונית – Make.com Webhooks</a></li>
+      <li><a href="#password">סיסמת האדמין</a></li>
+      <li><a href="#admin">שימוש בפאנל Admin</a></li>
+      <li><a href="#deploy">העלאה לאתר</a></li>
+      <li><a href="#config">טבלת הגדרות לשינוי</a></li>
+      <li><a href="#test">בדיקות לפני שיגור</a></li>
+      <li><a href="#faq">שאלות נפוצות</a></li>
+    </ol>
+  </div>
+
+  <!-- 1. OVERVIEW -->
+  <div class="section" id="overview">
+    <h2><span class="section-num">1</span> סקירת המערכת</h2>
+    <p>פורטל VIP הוא אפליקציית אינטרנט חד-עמודית (SPA) הפועלת על 4 שלבים, נועדה ללקוחות האולפן של יקיר כהן. כל הנתונים עוברים דרך Make.com ולא מאוחסנים בקוד עצמו.</p>
+
+    <div class="alert blue">
+      <span class="alert-icon">🔐</span>
+      <p><strong>אפס מפתחות API בקוד.</strong> כל התקשורת עם Google Sheets, WhatsApp, ו-Claude AI עוברת דרך Make.com Webhooks בלבד. הכלי מחזיר טוקן אימות שנשמר ב-sessionStorage (TTL 24 שעות).</p>
+    </div>
+
+    <h3>טכנולוגיות</h3>
+    <table class="tbl">
+      <tr><th>רכיב</th><th>טכנולוגיה</th><th>הסבר</th></tr>
+      <tr><td>Frontend</td><td>Vanilla JS + Tailwind CSS v4 CDN</td><td>ללא React/Vue/Svelte</td></tr>
+      <tr><td>Backend</td><td>Make.com Webhooks</td><td>לא נדרש שרת</td></tr>
+      <tr><td>מסד נתונים</td><td>Google Sheets (דרך Make.com)</td><td></td></tr>
+      <tr><td>אחסון תמונות</td><td>Google Drive (דרך Make.com)</td><td></td></tr>
+      <tr><td>AI תמלול</td><td>Claude API (דרך Make.com)</td><td></td></tr>
+      <tr><td>WhatsApp OTP</td><td>WhatsApp Business (דרך Make.com)</td><td></td></tr>
+      <tr><td>Session</td><td>sessionStorage – TTL 24 שעות</td><td></td></tr>
+    </table>
+  </div>
+
+  <!-- 2. FILES -->
+  <div class="section" id="files">
+    <h2><span class="section-num">2</span> מבנה קבצים</h2>
+    <div class="file-tree">
+      <span class="dir">📁 שורש האתר/</span><br/>
+      &nbsp;&nbsp;<span class="html">├── portal.html</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="note">← פורטל הלקוח (שלבים 1-4)</span><br/>
+      &nbsp;&nbsp;<span class="html">├── admin.html</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="note">← פאנל ניהול פנימי</span><br/>
+      &nbsp;&nbsp;<span class="conf">├── .htaccess</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="note">← כותרות אבטחה + HTTPS redirect</span><br/>
+      &nbsp;&nbsp;<span class="conf">└── robots.txt</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="note">← חסימת גוגל/בוטים</span>
+    </div>
+
+    <h3>portal.html – פורטל הלקוח</h3>
+    <p>קובץ אחד מכיל 4 שלבים:</p>
+    <table class="tbl">
+      <tr><th>שלב</th><th>תוכן</th><th>מה קורה</th></tr>
+      <tr><td><strong>שלב 1</strong></td><td>כניסה OTP</td><td>טלפון → WhatsApp → קוד 4 ספרות → sessionStorage token</td></tr>
+      <tr><td><strong>שלב 2</strong></td><td>מניפסטו</td><td>לקרוא + לאשר 2 תיבות → המשך</td></tr>
+      <tr><td><strong>שלב 3</strong></td><td>אונבורדינג</td><td>תמונה + שם אמן + ז'אנר + הקלטת קול (תמלול AI)</td></tr>
+      <tr><td><strong>שלב 4</strong></td><td>דשבורד VIP</td><td>WiFi, שיתוף חבר, upsells להזמנה</td></tr>
+    </table>
+
+    <h3>admin.html – פאנל ניהול</h3>
+    <p>גישה ל-<code>yoursite.com/admin.html</code> – כניסה בסיסמה דרך Webhook.</p>
+    <ul>
+      <li>סקירה: סטטיסטיקות (לקוחות, הזמנות, הכנסות)</li>
+      <li>לקוחות: טבלה עם חיפוש, סינון לפי שלב, פתיחת פרופיל</li>
+      <li>הזמנות: כרטיסי upsell ממתינים → סמן כטופל</li>
+      <li>יצוא CSV עם BOM לעברית ב-Excel</li>
+      <li>שליחת WhatsApp ישיר לכל לקוח</li>
+    </ul>
+  </div>
+
+  <!-- 3. FLOW -->
+  <div class="section" id="flow">
+    <h2><span class="section-num">3</span> זרימת משתמש – איך זה עובד</h2>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-dot">1</div>
+        <div class="flow-content">
+          <h4>לקוח נכנס ל-portal.html</h4>
+          <p>מזין מספר טלפון ישראלי (05X-XXX-XXXX). הפורטל קורא ל-Webhook <code>SEND_OTP</code>.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot">2</div>
+        <div class="flow-content">
+          <h4>Make.com שולח OTP ב-WhatsApp</h4>
+          <p>הסצנריו ב-Make.com יוצר קוד 4 ספרות, שומר ב-Google Sheets, ושולח ב-WhatsApp ללקוח.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot">3</div>
+        <div class="flow-content">
+          <h4>לקוח מזין קוד → אימות</h4>
+          <p>הפורטל קורא ל-Webhook <code>VERIFY_OTP</code>. Make.com מחזיר <code>{"success":true,"token":"abc123"}</code>. הטוקן נשמר ב-sessionStorage ל-24 שעות.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot">4</div>
+        <div class="flow-content">
+          <h4>שלב 2 – מניפסטו</h4>
+          <p>לקרוא ולאשר. שלב ללא Webhook – מקומי בדפדפן בלבד.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot">5</div>
+        <div class="flow-content">
+          <h4>שלב 3 – אונבורדינג</h4>
+          <p>תמונה → <code>UPLOAD_PHOTO</code> (שמירה ב-Drive). הקלטת קול → <code>TRANSCRIBE</code> (Claude AI). שם אמן + ז'אנר → <code>SAVE_PROFILE</code> (שמירה ב-Sheets).</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot">6</div>
+        <div class="flow-content">
+          <h4>שלב 4 – דשבורד + Upsells</h4>
+          <p>לקוח רואה WiFi, שיתוף חבר, ואפשרויות שדרוג. לחיצה על "הזמן" → Webhook <code>ORDER</code>.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot">✓</div>
+        <div class="flow-content">
+          <h4>Admin מקבל הכל</h4>
+          <p>כל הפרטים מופיעים ב-admin.html עם אפשרות לאשר הזמנות ולשלוח WhatsApp.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. SETUP -->
+  <div class="section" id="setup">
+    <h2><span class="section-num">4</span> הגדרה ראשונית – Make.com Webhooks</h2>
+
+    <div class="alert orange">
+      <span class="alert-icon">⚠️</span>
+      <p><strong>חובה לפני שיגור!</strong> כל ה-Webhooks מוגדרים כ-<code>REPLACE_...</code> בקוד. יש להחליף כל אחד ב-URL אמיתי מ-Make.com.</p>
+    </div>
+
+    <h3>Webhooks שצריך ליצור ב-Make.com (portal.html)</h3>
+    <table class="tbl">
+      <tr><th>שם</th><th>מה לעשות בסצנריו</th><th>מה להחזיר</th></tr>
+      <tr>
+        <td><code>SEND_OTP</code></td>
+        <td>מקבל <code>phone</code>. יוצר קוד 4 ספרות, שומר ב-Sheets, שולח ב-WhatsApp Business.</td>
+        <td><code>{"success":true}</code></td>
+      </tr>
+      <tr>
+        <td><code>VERIFY_OTP</code></td>
+        <td>מקבל <code>phone, otp</code>. בודק מול Sheets. אם נכון – מחזיר טוקן.</td>
+        <td><code>{"success":true,"token":"abc..."}</code></td>
+      </tr>
+      <tr>
+        <td><code>UPLOAD_PHOTO</code></td>
+        <td>מקבל <code>phone, photo (Base64), filename</code>. שומר ב-Google Drive.</td>
+        <td><code>{"success":true}</code></td>
+      </tr>
+      <tr>
+        <td><code>TRANSCRIBE</code></td>
+        <td>מקבל <code>audio (Base64), phone</code>. שולח ל-Claude API. מחזיר תמלול.</td>
+        <td><code>{"transcription":"..."}</code></td>
+      </tr>
+      <tr>
+        <td><code>SAVE_PROFILE</code></td>
+        <td>מקבל <code>phone, artistName, genre, transcript</code>. שומר ב-Sheets.</td>
+        <td><code>{"success":true}</code></td>
+      </tr>
+      <tr>
+        <td><code>ORDER</code></td>
+        <td>מקבל <code>phone, items[]</code>. שומר הזמנה, שולח WhatsApp לאדמין.</td>
+        <td><code>{"success":true}</code></td>
+      </tr>
+      <tr>
+        <td><code>SHARE</code></td>
+        <td>מקבל <code>phone</code>. רושם שיתוף. אופציונלי.</td>
+        <td><code>{"success":true}</code></td>
+      </tr>
+    </table>
+
+    <h3>Webhooks שצריך ליצור ב-Make.com (admin.html)</h3>
+    <table class="tbl">
+      <tr><th>שם</th><th>מה לעשות בסצנריו</th><th>מה להחזיר</th></tr>
+      <tr>
+        <td><code>ADMIN_LOGIN</code></td>
+        <td>מקבל <code>password</code>. בודק מול סיסמה שמוגדרת ידנית בסצנריו (ראה סעיף 5).</td>
+        <td><code>{"success":true,"token":"admin-token-123"}</code></td>
+      </tr>
+      <tr>
+        <td><code>GET_CLIENTS</code></td>
+        <td>שולף את כל הרשומות מ-Google Sheets.</td>
+        <td><code>{"clients":[...]}</code></td>
+      </tr>
+      <tr>
+        <td><code>GET_ORDERS</code></td>
+        <td>שולף הזמנות פתוחות מ-Sheets.</td>
+        <td><code>{"orders":[...]}</code></td>
+      </tr>
+      <tr>
+        <td><code>DONE_ORDER</code></td>
+        <td>מקבל <code>orderId</code>. מסמן הזמנה כטופלה ב-Sheets.</td>
+        <td><code>{"success":true}</code></td>
+      </tr>
+      <tr>
+        <td><code>SEND_WA</code></td>
+        <td>מקבל <code>phone, name</code>. רושם לוג. (הפתיחה עצמה היא ב-wa.me URL)</td>
+        <td><code>{"success":true}</code></td>
+      </tr>
+    </table>
+
+    <h3>איך להחליף את ה-URLs בקוד</h3>
+    <p>פתחו את <code>portal.html</code> בעורך טקסט (VS Code / Notepad++). חפשו <code>REPLACE_</code> והחליפו:</p>
+    <pre><code>// portal.html – שורות ~925-937
+WH: {
+  SEND_OTP:     'https://hook.eu2.make.com/YOUR_REAL_ID_HERE',
+  VERIFY_OTP:   'https://hook.eu2.make.com/YOUR_REAL_ID_HERE',
+  UPLOAD_PHOTO: 'https://hook.eu2.make.com/YOUR_REAL_ID_HERE',
+  TRANSCRIBE:   'https://hook.eu2.make.com/YOUR_REAL_ID_HERE',
+  SAVE_PROFILE: 'https://hook.eu2.make.com/YOUR_REAL_ID_HERE',
+  ORDER:        'https://hook.eu2.make.com/YOUR_REAL_ID_HERE',
+  SHARE:        'https://hook.eu2.make.com/YOUR_REAL_ID_HERE',
+},
+WA_GAL: 'https://wa.me/97250XXXXXXX',  // ← מספר WhatsApp של גל
+</code></pre>
+
+    <p>ואותו הדבר ב-<code>admin.html</code>:</p>
+    <pre><code>// admin.html – שורות ~739-748
+WH: {
+  ADMIN_LOGIN:  'https://hook.eu2.make.com/YOUR_REAL_ID_HERE',
+  GET_CLIENTS:  'https://hook.eu2.make.com/YOUR_REAL_ID_HERE',
+  GET_ORDERS:   'https://hook.eu2.make.com/YOUR_REAL_ID_HERE',
+  DONE_ORDER:   'https://hook.eu2.make.com/YOUR_REAL_ID_HERE',
+  SEND_WA:      'https://hook.eu2.make.com/YOUR_REAL_ID_HERE',
+},
+</code></pre>
+  </div>
+
+  <!-- 5. PASSWORD -->
+  <div class="section" id="password">
+    <h2><span class="section-num">5</span> סיסמת האדמין – איך מגדירים</h2>
+
+    <div class="alert red">
+      <span class="alert-icon">🔒</span>
+      <p><strong>הסיסמה לא מאוחסנת בקוד.</strong> זו החלטת אבטחה מכוונת – אם מישהו יראה את קוד המקור, לא יוכל לדעת את הסיסמה. היא מאוחסנת רק ב-Make.com Scenario.</p>
+    </div>
+
+    <h3>כיצד להגדיר סיסמה לפאנל Admin</h3>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-dot">1</div>
+        <div class="flow-content">
+          <h4>צרו Scenario חדש ב-Make.com</h4>
+          <p>Webhook (Custom Webhook) → Router → HTTP Response</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot">2</div>
+        <div class="flow-content">
+          <h4>הוסיפו Router עם תנאי</h4>
+          <p>תנאי: <code>{{body.password}} = YOUR_CHOSEN_PASSWORD</code></p>
+          <p>אם נכון → החזר: <code>{"success":true,"token":"VIP-ADMIN-2026"}</code></p>
+          <p>אם שגוי → החזר: <code>{"success":false,"message":"סיסמה שגויה"}</code></p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot">3</div>
+        <div class="flow-content">
+          <h4>העתיקו את URL ה-Webhook</h4>
+          <p>הדביקו אותו ב-<code>admin.html</code> כ-<code>ADMIN_LOGIN</code></p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot">✓</div>
+        <div class="flow-content">
+          <h4>לכניסה לפאנל</h4>
+          <p>גשו ל-<code>yoursite.com/admin.html</code> והזינו את הסיסמה שבחרתם ב-Make.com. Session נשמר 8 שעות.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert green">
+      <span class="alert-icon">💡</span>
+      <p><strong>טיפ אבטחה:</strong> הטוקן שמוחזר (<code>"VIP-ADMIN-2026"</code>) יכול להיות כל מחרוזת שתרצו. הוא נשלח עם כל קריאה ל-Admin Webhook כ-Header: <code>X-VIP-Admin: VIP-ADMIN-2026</code>. כך תוכלו לוודא בכל סצנריו ב-Make.com שהבקשה מגיעה מהפאנל המוסמך.</p>
+    </div>
+  </div>
+
+  <!-- 6. ADMIN -->
+  <div class="section" id="admin">
+    <h2><span class="section-num">6</span> שימוש בפאנל Admin</h2>
+
+    <h3>סקירה כללית</h3>
+    <table class="tbl">
+      <tr><th>כפתור</th><th>פעולה</th></tr>
+      <tr><td>🔄 רענן (ראש הדף)</td><td>שולף נתונים עדכניים מ-Sheets (מחק cache + טען מחדש)</td></tr>
+      <tr><td>יצוא CSV</td><td>מוריד קובץ Excel עם כל הלקוחות + BOM לעברית</td></tr>
+    </table>
+
+    <h3>סינון לקוחות</h3>
+    <ul>
+      <li>לחצו על שם לקוח בטבלה → פרופיל מלא עם כפתור WhatsApp</li>
+      <li>סנן לפי שלב (הכל / שלב 1-4) + חיפוש חופשי</li>
+      <li>כפתור 📱 בעמודה האחרונה → פותח WhatsApp עם הודעה מוכנה</li>
+    </ul>
+
+    <h3>הזמנות (Upsells)</h3>
+    <ul>
+      <li>כרטיס הזמנה מציג: שם לקוח, מוצרים, סכום, תאריך</li>
+      <li>לחצו "✓ טופל" → מעדכן ב-Sheets + מוסיף ל-הכנסות</li>
+      <li>Badge צהוב בסיידבר מציג כמות הזמנות ממתינות</li>
+    </ul>
+
+    <h3>Session Admin</h3>
+    <p>Session מחזיק 8 שעות ב-sessionStorage. לאחר 8 שעות ← מנוחל אוטומטית לדף כניסה.</p>
+  </div>
+
+  <!-- 7. DEPLOY -->
+  <div class="section" id="deploy">
+    <h2><span class="section-num">7</span> העלאה לאתר (Deployment)</h2>
+
+    <h3>שלבי העלאה</h3>
+    <ol style="padding-right:20px;">
+      <li style="margin-bottom:8px;">ודאו שהחלפתם את כל ה-<code>REPLACE_</code> URLs ב-Make.com Webhook URLs אמיתיים</li>
+      <li style="margin-bottom:8px;">שנו <code>CONFIG.DEBUG = false</code> בשני הקבצים (portal.html + admin.html)</li>
+      <li style="margin-bottom:8px;">העלו את 4 הקבצים לשרת Apache עם SSL (HTTPS):<br/>
+        &nbsp;&nbsp;<code>portal.html</code> | <code>admin.html</code> | <code>.htaccess</code> | <code>robots.txt</code></li>
+      <li style="margin-bottom:8px;">וודאו שה-<code>.htaccess</code> מופעל: <code>AllowOverride All</code> ב-apache2.conf</li>
+      <li style="margin-bottom:8px;">בדקו את הכותרות: <a href="https://securityheaders.com" target="_blank">securityheaders.com</a></li>
+    </ol>
+
+    <div class="alert blue">
+      <span class="alert-icon">ℹ️</span>
+      <p><strong>הגנה על admin.html:</strong> ניתן להוסיף ל-<code>.htaccess</code> הגבלת IP על admin.html כשכבת אבטחה נוספת. הוסיפו: <code>&lt;Files "admin.html"&gt; Require ip YOUR_IP &lt;/Files&gt;</code></p>
+    </div>
+
+    <h3>הגדרת WiFi מ-URL</h3>
+    <p>ניתן לשלוח ללקוח קישור ייחודי עם פרטי WiFi:</p>
+    <pre><code>https://yoursite.com/portal.html?wifi=StudioVIP_5G|VIP2024!
+                                              ↑ שם רשת     ↑ סיסמה</code></pre>
+  </div>
+
+  <!-- 8. CONFIG TABLE -->
+  <div class="section" id="config">
+    <h2><span class="section-num">8</span> טבלת הגדרות לשינוי</h2>
+    <table class="tbl">
+      <tr><th>קובץ</th><th>משתנה</th><th>ברירת מחדל</th><th>מה לשנות</th></tr>
+      <tr><td>portal.html / admin.html</td><td><code>CONFIG.WA_GAL</code></td><td><code>wa.me/972587555456</code></td><td>מספר WhatsApp של יקיר – עדכן בשני הקבצים</td></tr>
+      <tr><td>index.html</td><td><code>const WA</code></td><td><code>972587555456</code></td><td>מספר WA לדף הבית – שנה כאן ויתעדכן אוטומטית</td></tr>
+      <tr><td>portal.html</td><td><code>CONFIG.WIFI.NAME</code></td><td><code>StudioVIP_5G</code></td><td>שם רשת WiFi האולפן</td></tr>
+      <tr><td>portal.html</td><td><code>CONFIG.WIFI.PASS</code></td><td><code>VIP2024!</code></td><td>סיסמת WiFi האולפן</td></tr>
+      <tr><td>portal.html</td><td><code>CONFIG.SESSION_TTL</code></td><td><code>86400000 (24h)</code></td><td>משך session הלקוח</td></tr>
+      <tr><td>portal.html</td><td><code>CONFIG.DEBUG</code></td><td><code>true</code></td><td>שנה ל-<code>false</code> בפרודקשן</td></tr>
+      <tr><td>admin.html</td><td><code>CONFIG.SESSION_TTL</code></td><td><code>8 * 3600000 (8h)</code></td><td>משך session Admin</td></tr>
+      <tr><td>admin.html</td><td><code>CONFIG.DEBUG</code></td><td><code>true</code></td><td>שנה ל-<code>false</code> בפרודקשן</td></tr>
+      <tr><td>portal.html</td><td><code>CONFIG.MAX_FILE</code></td><td><code>5000000 (5MB)</code></td><td>גודל תמונה מקסימלי</td></tr>
+    </table>
+  </div>
+
+  <!-- 9. TESTING -->
+  <div class="section" id="test">
+    <h2><span class="section-num">9</span> בדיקות לפני שיגור</h2>
+    <table class="tbl">
+      <tr><th>#</th><th>בדיקה</th><th>תוצאה צפויה</th></tr>
+      <tr><td>1</td><td>הזן טלפון לא תקין (04xxxxxxx)</td><td>הודעת שגיאה אדומה מתחת לשדה</td></tr>
+      <tr><td>2</td><td>הזן טלפון תקין (05xxxxxxxx)</td><td>OTP נשלח ב-WhatsApp</td></tr>
+      <tr><td>3</td><td>רענן באמצע שלב 2 (F5)</td><td>Resume – חזרה לשלב 2 עם toast ירוק</td></tr>
+      <tr><td>4</td><td>לחץ Esc בכל שלב</td><td>חזרה לשלב הקודם</td></tr>
+      <tr><td>5</td><td>נסה להעלות קובץ &gt; 5MB</td><td>שגיאה לפני שליחה</td></tr>
+      <tr><td>6</td><td>נסה ללא הרשאת מיקרופון</td><td>Toast שגיאה מתאים (לא crash)</td></tr>
+      <tr><td>7</td><td>הגע לשלב 4</td><td>קונפטי + ding + vibrate</td></tr>
+      <tr><td>8</td><td>Safari iOS – הקלד טלפון</td><td>מקלדת מספרים, ללא zoom</td></tr>
+      <tr><td>9</td><td>Dark Mode (macOS/iOS)</td><td>נושא כהה אוטומטי</td></tr>
+      <tr><td>10</td><td>כנס ל-admin.html בסיסמה נכונה</td><td>נכנס לדשבורד, session 8h</td></tr>
+      <tr><td>11</td><td>כנס ל-admin.html בסיסמה שגויה</td><td>הודעת שגיאה, לא נכנס</td></tr>
+      <tr><td>12</td><td>יצוא CSV עם לקוחות</td><td>קובץ מורד, עברית קריאה ב-Excel</td></tr>
+    </table>
+  </div>
+
+  <!-- 10. FAQ -->
+  <div class="section" id="faq">
+    <h2><span class="section-num">10</span> שאלות נפוצות</h2>
+
+    <h3>❓ לקוח לא קיבל OTP ב-WhatsApp</h3>
+    <p>1. בדוק שה-Webhook SEND_OTP מוגדר נכון ב-Make.com ופעיל (לא Off). 2. בדוק ב-console של הדפדפן שאין שגיאת network. 3. ודא שמספר WhatsApp Business שלך אינו חסום.</p>
+
+    <h3>❓ קוד OTP "שגוי" תמיד</h3>
+    <p>ב-Webhook VERIFY_OTP – ודא שהסצנריו מחפש את הקוד בטבלה הנכונה ומחזיר <code>{"success":true,"token":"..."}</code> בדיוק (לא null, לא empty).</p>
+
+    <h3>❓ תמונה לא עולה / גדולה מ-5MB</h3>
+    <p>הגודל המקסימלי מוגדר ב-<code>CONFIG.MAX_FILE = 5_000_000</code>. שנה אם צריך. ב-Make.com – ודא שהסצנריו תומך ב-Base64 גדול (זה עלול לדרוש Plan גבוה יותר).</p>
+
+    <h3>❓ כל הכפתורים נעולים (spinner רץ)</h3>
+    <p>המשמעות היא שה-Webhook לא החזיר תשובה תוך 12 שניות (<code>WH_TIMEOUT</code>). בדוק ב-Make.com שהסצנריו מחזיר Response מיידי ולא "waiting for next run".</p>
+
+    <h3>❓ Admin לא רואה לקוחות</h3>
+    <p>ודא ש-Webhook GET_CLIENTS מחזיר מבנה נכון: <code>{"clients":[{"phone":"05...","artistName":"...","step":4,...}]}</code>. שמות שדות צריכים להיות זהים (camelCase).</p>
+
+    <h3>❓ עברית מבולגנת ב-CSV</h3>
+    <p>ודאו שפותחים את הקובץ ב-Excel עם encoding UTF-8 BOM. ה-BOM (<code>\uFEFF</code>) כבר מוסף אוטומטית בקוד.</p>
+
+    <h3>❓ כיצד לשנות את טקסט המניפסטו?</h3>
+    <p>פתחו <code>portal.html</code>, חפשו <code>"אצלנו באולפן"</code> – זה תחילת אזור המניפסטו ב-HTML (שלב 2).</p>
+
+    <h3>❓ כיצד לשנות את תוכן ה-Upsells?</h3>
+    <p>שני מקומות: 1. ה-HTML של הדשבורד (כרטיסי upsell). 2. האובייקט <code>NAMES</code> ב-<code>orderUpsells()</code> ב-JavaScript. שים לב: המחירים הוסרו מהמערכת – אין להציג ₪ ללקוחות שכבר שילמו.</p>
+  </div>
+
+  <div class="footer">
+    <p>נבנה עבור <strong>יקיר כהן הפקות</strong> · VIP Portal v5.0 · 2026 · ללא מחירים (לקוחות ששילמו)</p>
+    <p style="margin-top:6px;color:#bbb;">במקרה של שאלות, דבר עם גל ב-WhatsApp 💬</p>
+  </div>
+
+</div>
+</body>
+</html>
