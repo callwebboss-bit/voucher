@@ -3,1136 +3,963 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<meta property="og:title" content="🎁 יש לך מכתב מיוחד">
-<meta property="og:description" content="מכתב הקדשה ושובר מתנה – יקיר כהן הפקות">
-<meta property="og:image" content="https://lh3.googleusercontent.com/sitesv/APaQ0STQv7BhuANWyTWJl9yCKqozK2QUJALzupkij4nzjDE9RTMB1jPnUbPDcQ2wxzXLQ53nCfVtR2_2luuJ9WIESUmASqhKHRkbjlImDF4FhO_unTvLFFeYXrKBPliD8f0Bt7sgM6WIBaY8vqvEgOwlaztpJDy4rzswM-wM-GzopxTSk5Vk8VPRTWyPFoA=w16383">
-<meta property="og:type" content="website">
-<title>יקיר כהן | שובר מתנה</title>
+<meta name="robots" content="noindex, nofollow">
+<title>יקיר כהן | Studio Voucher Creator 3.0</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Frank+Ruhl+Libre:wght@400;700;900&family=Noto+Serif+Hebrew:wght@300;400;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Frank+Ruhl+Libre:wght@300;400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ══════════════════════════════════════════════
-   TOKENS
-══════════════════════════════════════════════ */
-:root{
-  --bg:     #fafaf8;
-  --white:  #ffffff;
-  --ink:    #1a1a1a;
-  --red:    #c8102e;
-  --red2:   #9e0d23;
-  --mid:    #6a6a6a;
-  --silver: #9a9a9a;
-  --ash:    #d0d0d0;
-  --mist:   #e8e8e8;
-  --fog:    #f4f4f4;
-  --r:10px; --r2:16px; --r3:24px;
-  --sh: 0 2px 12px rgba(0,0,0,.06), 0 8px 32px rgba(0,0,0,.07);
-  --sh2:0 4px 20px rgba(0,0,0,.1), 0 20px 60px rgba(0,0,0,.08);
-  --shr:0 4px 20px rgba(200,16,46,.2);
-  --tr:all .28s cubic-bezier(.4,0,.2,1);
-  --ff:'Heebo',sans-serif;
-  --ffs:'Frank Ruhl Libre',serif;
-  --ffh:'Noto Serif Hebrew',serif;
+/* ═══ VARIABLES ═══ */
+:root {
+  --bg:#060412; --bg2:#0a0718; --bg3:#0d0a22;
+  --gold:#c9a84c; --gold2:#f0d47a; --goldA:rgba(201,168,76,0.15);
+  --border:rgba(201,168,76,0.18); --border2:rgba(255,255,255,0.08);
+  --text:#ede8ff; --muted:rgba(237,232,255,0.45);
+  --surface:rgba(255,255,255,0.04); --surface2:rgba(255,255,255,0.08);
+  --green:#34c759; --red:#e03030; --radius:12px;
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{font-size:16px;scroll-behavior:smooth}
-body{
-  font-family:var(--ff);background:var(--bg);color:var(--ink);
-  -webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:100vh
-}
-::placeholder{color:var(--ash)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Heebo',sans-serif;background:var(--bg);color:var(--text);direction:rtl;}
 
-/* ══════════════════════════════════════════════
-   AMBIENT CANVAS BACKGROUND
-══════════════════════════════════════════════ */
-#ambientCanvas{
-  position:fixed;inset:0;z-index:0;pointer-events:none;
-  opacity:.55
-}
+/* Noise overlay */
+body::after{content:'';position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.25;
+  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.02'/%3E%3C/svg%3E");}
 
-/* ══════════════════════════════════════════════
-   PASSWORD GATE
-══════════════════════════════════════════════ */
-#pwdGate{
-  position:fixed;inset:0;z-index:500;
-  background:var(--bg);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:20px;padding:40px 20px;
-  animation:fadeIn .5s ease
-}
-#pwdGate.gone{display:none}
-@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.pg-logo{height:48px}
-.pg-kicker{font-size:.62rem;letter-spacing:3.5px;text-transform:uppercase;color:var(--silver);font-weight:700}
-.pg-title{font-family:var(--ffs);font-size:clamp(1.7rem,5vw,2.6rem);font-weight:900;line-height:1.1;text-align:center;color:var(--ink)}
-.pg-sub{font-size:.86rem;color:var(--mid);text-align:center;max-width:280px;line-height:1.65}
-.pg-rule{width:40px;height:3px;background:var(--red);border-radius:2px}
-.pg-form{display:flex;gap:8px;max-width:300px;width:100%}
-.pg-input{
-  flex:1;border:1.5px solid var(--mist);border-radius:var(--r);
-  background:var(--white);color:var(--ink);font-family:var(--ff);
-  font-size:1rem;padding:11px 14px;direction:ltr;text-align:center;
-  letter-spacing:4px;transition:var(--tr)}
-.pg-input:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(200,16,46,.1)}
-.pg-input::placeholder{letter-spacing:1px;color:var(--ash)}
-.pg-btn{
-  background:var(--ink);border:none;border-radius:var(--r);
-  color:var(--white);font-family:var(--ff);font-weight:700;
-  font-size:.9rem;padding:11px 20px;cursor:pointer;transition:var(--tr)}
-.pg-btn:hover{background:var(--red);transform:translateY(-1px)}
-.pg-err{font-size:.76rem;color:var(--red);display:none;text-align:center}
-.pg-err.show{display:block}
-.pg-hint{font-size:.68rem;color:var(--ash);text-align:center}
+/* ═══ TOPBAR ═══ */
+.topbar{position:fixed;top:0;left:0;right:0;height:52px;z-index:100;
+  background:rgba(6,4,18,0.96);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:space-between;padding:0 20px;}
+.tb-brand{display:flex;align-items:center;gap:10px;}
+.tb-mic{font-size:1.15rem;filter:drop-shadow(0 0 6px rgba(201,168,76,0.5));}
+.tb-name{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.82rem;
+  letter-spacing:3px;color:var(--gold);text-transform:uppercase;}
 
-/* ══════════════════════════════════════════════
-   MAIN CONTENT WRAPPER
-══════════════════════════════════════════════ */
-#content{position:relative;z-index:1;display:none}
-#content.on{display:block}
+.steps{display:flex;align-items:center;gap:0;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 14px;
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.68rem;
+  letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);
+  transition:color 0.3s;}
+.step.active{color:var(--gold);}
+.step.done{color:var(--green);}
+.sn{width:21px;height:21px;border-radius:50%;background:var(--surface2);
+  border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;
+  font-size:0.62rem;font-family:'Rajdhani',sans-serif;font-weight:700;
+  transition:all 0.3s;flex-shrink:0;}
+.step.active .sn{background:var(--gold);color:#000;border-color:var(--gold);}
+.step.done .sn{background:var(--green);color:#fff;border-color:var(--green);}
+.sarr{width:18px;height:1px;background:var(--border2);margin:0 -3px;}
+.step.done~.sarr,.step.done+.step+.sarr{background:var(--green);}
 
-/* ══════════════════════════════════════════════
-   GATE SCREEN (open gift)
-══════════════════════════════════════════════ */
-#gateScreen{
-  min-height:100vh;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  padding:60px 24px;gap:20px;text-align:center;
-  animation:fadeIn .7s ease
-}
-#gateScreen.gone{display:none}
-.gs-logo{height:50px;margin-bottom:6px}
-.gs-kicker{font-size:.62rem;letter-spacing:3.5px;text-transform:uppercase;color:var(--silver);font-weight:700}
-.gs-title{font-family:var(--ffs);font-size:clamp(2rem,5vw,3.2rem);font-weight:900;line-height:1.1;color:var(--ink)}
-.gs-rule{width:44px;height:3px;background:var(--red);border-radius:2px}
-.gs-sender{
-  background:var(--white);border:1.5px solid var(--mist);
-  border-radius:100px;padding:8px 20px;
-  font-size:.82rem;color:var(--mid);display:flex;align-items:center;gap:6px}
-.gs-sender strong{color:var(--ink);font-weight:700}
-.gs-sub{font-size:.92rem;color:var(--mid);max-width:280px;line-height:1.7}
+/* ═══ LAYOUT ═══ */
+.layout{display:flex;height:100vh;padding-top:52px;position:relative;z-index:10;}
 
-/* Console-style open button */
-.gs-open-btn{
-  position:relative;overflow:hidden;
-  padding:17px 50px;border-radius:var(--r2);border:none;
-  background:linear-gradient(180deg,#222,#0a0a0a);
-  color:var(--white);font-family:var(--ff);font-size:1.05rem;font-weight:700;
-  cursor:pointer;letter-spacing:.3px;
-  box-shadow:0 3px 0 #000,0 8px 28px rgba(0,0,0,.25),
-             inset 0 1px 0 rgba(255,255,255,.09);
-  transition:var(--tr);display:flex;align-items:center;gap:12px}
-.gs-open-btn::before{content:'';position:absolute;top:0;left:0;right:0;height:44%;
-  background:rgba(255,255,255,.045);pointer-events:none}
-.gs-open-btn:hover{
-  background:linear-gradient(180deg,#2e2e2e,#181818);
-  transform:translateY(-2px);
-  box-shadow:0 5px 0 #000,0 12px 32px rgba(0,0,0,.3),
-             inset 0 1px 0 rgba(255,255,255,.11)}
-.gs-open-btn:active{transform:translateY(1px);
-  box-shadow:0 1px 0 #000,0 3px 12px rgba(0,0,0,.2)}
-.gs-arrow{font-size:1.1rem;transition:transform .2s}
-.gs-open-btn:hover .gs-arrow{transform:translateX(-4px)}
-.gs-fine{font-size:.65rem;color:var(--ash)}
+/* FORM PANEL */
+.fp{width:385px;flex-shrink:0;overflow-y:auto;padding:20px 16px 100px;
+  background:var(--bg2);border-left:1px solid var(--border2);
+  scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.fp::-webkit-scrollbar{width:3px;}
+.fp::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
 
-/* ══════════════════════════════════════════════
-   LETTER PAGE
-══════════════════════════════════════════════ */
-#letterPage{
-  max-width:700px;margin:0 auto;padding:60px 20px 100px;
-  display:none;opacity:0;transform:translateY(22px);
-  transition:opacity .7s ease,transform .7s ease}
-#letterPage.vis{display:block}
-#letterPage.revealed{opacity:1;transform:translateY(0)}
+/* PREVIEW PANEL */
+.pp{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;background:var(--bg);overflow:hidden;position:relative;}
 
-/* ── Header ── */
-.ltr-hdr{text-align:center;margin-bottom:48px}
-.ltr-hdr-logo{height:44px;margin-bottom:18px}
-.ltr-hdr-date{font-size:.7rem;color:var(--silver);letter-spacing:.5px}
-.ltr-hdr-loc{font-size:.7rem;color:var(--silver)}
+/* ═══ FORM ELEMENTS ═══ */
+.sl{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.64rem;
+  letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);
+  margin:18px 0 9px;display:flex;align-items:center;gap:6px;}
+.sl:first-child{margin-top:0;}
+.sl::before{content:'';width:10px;height:1px;background:var(--gold);}
 
-/* ── Body ── */
-.ltr-salutation{font-family:var(--ffh);font-size:1.22rem;font-weight:700;color:var(--ink);margin-bottom:22px;line-height:1.5}
-.ltr-text{
-  font-family:var(--ff);font-size:1.03rem;font-weight:400;
-  line-height:1.95;color:var(--ink);text-align:right;
-  white-space:pre-wrap;word-break:break-word;margin-bottom:32px;
-  border-right:3px solid var(--red);padding-right:18px}
+.fld{margin-bottom:10px;}
+.fld label{display:block;font-size:0.62rem;color:var(--muted);font-weight:600;
+  letter-spacing:0.4px;text-transform:uppercase;margin-bottom:4px;}
 
-/* STT Bubble display */
-.stt-bubble{
-  background:var(--white);border:1.5px solid var(--mist);border-radius:var(--r2);
-  border-bottom-right-radius:4px;padding:16px 20px;margin-bottom:24px;
-  position:relative;box-shadow:var(--sh);
-  font-size:.92rem;line-height:1.8;color:var(--ink);font-style:italic}
-.stt-bubble::before{
-  content:'🎤';position:absolute;top:-12px;right:16px;
-  background:var(--red);border-radius:50%;width:24px;height:24px;
-  display:flex;align-items:center;justify-content:center;font-size:.7rem}
-.stt-bubble-label{font-size:.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--silver);margin-bottom:8px;font-weight:700}
+input[type=text],textarea,select{
+  width:100%;background:rgba(255,255,255,0.04);border:1.5px solid var(--border2);
+  border-radius:10px;color:var(--text);font-family:'Heebo',sans-serif;font-size:0.88rem;
+  padding:9px 12px;direction:rtl;
+  transition:border-color 0.2s,background 0.2s,box-shadow 0.2s;-webkit-appearance:none;}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--gold);
+  background:rgba(201,168,76,0.05);box-shadow:0 0 0 3px rgba(201,168,76,0.1);}
+select option{background:#0a0718;}
+::placeholder{color:rgba(255,255,255,0.17);}
+textarea{min-height:82px;resize:vertical;}
+.ccount{font-size:0.58rem;color:var(--muted);font-family:'Rajdhani',sans-serif;
+  font-weight:600;letter-spacing:0.5px;text-align:left;margin-top:3px;}
+.ccount.warn{color:#ffd60a;}.ccount.over{color:var(--red);}
 
-/* ── Separator ── */
-.sep{display:flex;align-items:center;gap:14px;margin:32px 0}
-.sep::before,.sep::after{content:'';flex:1;height:1px;background:var(--mist)}
-.sep span{font-size:.58rem;letter-spacing:3px;text-transform:uppercase;color:var(--ash)}
+/* ═══ TEMPLATE GRID ═══ */
+.tg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.tc{aspect-ratio:16/10;border-radius:10px;cursor:pointer;
+  border:2px solid transparent;transition:all 0.2s;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;position:relative;}
+.tc:hover{transform:translateY(-2px);}
+.tc.on{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,0.22);}
+.tc span{font-size:0.58rem;font-family:'Rajdhani',sans-serif;font-weight:700;
+  letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.75);
+  text-shadow:0 1px 6px rgba(0,0,0,0.8);position:relative;z-index:1;text-align:center;padding:0 4px;}
+.t0{background:linear-gradient(135deg,#060412,#1a1200);}
+.t1{background:linear-gradient(135deg,#12062a,#2d0d4e);}
+.t2{background:linear-gradient(135deg,#071022,#0e2040);}
+.t3{background:linear-gradient(135deg,#1a0c00,#3d1f00);}
+.t4{background:linear-gradient(160deg,#f5f0e8,#ede4d0);}
+.t4 span{color:rgba(0,0,0,0.65);text-shadow:none;}
 
-/* ── Closing ── */
-.ltr-close{margin:32px 0 44px}
-.ltr-close-by{font-size:.8rem;color:var(--mid);margin-bottom:6px}
-.ltr-sig-svg{margin:8px 0 4px;opacity:.28}
-.sig-path{fill:none;stroke:var(--ink);stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
-.ltr-sig-name{font-family:var(--ffh);font-size:1.2rem;font-weight:700;color:var(--ink)}
-.ltr-sig-role{font-size:.72rem;color:var(--silver);margin-top:2px}
+/* ═══ PACKAGES ═══ */
+.pkgrow{display:flex;gap:8px;}
+.pc{flex:1;padding:11px 8px;border-radius:10px;border:1.5px solid var(--border2);
+  background:var(--surface);cursor:pointer;text-align:center;transition:all 0.2s;}
+.pc:hover{border-color:var(--border);}
+.pc.on{border-color:var(--gold);background:rgba(201,168,76,0.1);}
+.pc-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.05rem;color:var(--gold2);display:block;}
+.pc-n{font-size:0.62rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
 
-/* ── Contributors ── */
-.contribs-block{margin-bottom:28px}
-.contribs-label{font-size:.68rem;color:var(--silver);letter-spacing:.5px;margin-bottom:8px}
-.contribs-list{display:flex;flex-wrap:wrap;gap:6px}
-.contrib-pill{background:var(--fog);border:1px solid var(--mist);border-radius:100px;
-  padding:4px 12px;font-size:.75rem;color:var(--ink)}
+/* ═══ HIDE PRICE TOGGLE ═══ */
+.hp-row{display:flex;align-items:center;gap:10px;margin-top:10px;padding:9px 12px;border-radius:10px;background:var(--surface);border:1.5px solid var(--border2);cursor:pointer;transition:border-color 0.2s;user-select:none;-webkit-user-select:none;}
+.hp-row:hover{border-color:var(--border);}
+.hp-row.on{border-color:rgba(201,168,76,0.45);}
+.hp-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--gold);cursor:pointer;flex-shrink:0;}
+.hp-row span{font-size:0.78rem;color:var(--muted);line-height:1.4;}
+.hp-row.on span{color:var(--text);}
 
-/* ══════════════════════════════════════════════
-   VOUCHER CARD
-══════════════════════════════════════════════ */
-.voucher-card{
-  border:5px solid var(--ink);border-radius:var(--r2);
-  overflow:hidden;position:relative;
-  background:var(--white);box-shadow:var(--sh2);
-  margin:0 0 40px;page-break-inside:avoid}
-.vc-hdr{
-  background:var(--ink);padding:13px 24px;
-  display:flex;align-items:center;justify-content:space-between}
-.vc-hdr img{height:26px;filter:brightness(0) invert(1)}
-.vc-badge{
-  font-size:.5rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
-  color:rgba(255,255,255,.38);border:1px solid rgba(255,255,255,.18);
-  padding:2px 8px;border-radius:100px}
-.vc-body{padding:20px 24px 24px}
-.vc-pkg{font-family:var(--ffs);font-size:1.55rem;font-weight:900;color:var(--ink);margin-bottom:2px}
-.vc-price{font-size:1rem;font-weight:300;color:var(--red)}
-.vc-price.hidden{display:none}
-.vc-desc{font-size:.74rem;color:var(--mid);margin-top:7px;line-height:1.55}
-.vc-divider{border:none;border-top:1px solid var(--mist);margin:14px 0}
-.vc-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px}
-.vc-mi label{font-size:.55rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--silver);display:block;margin-bottom:2px}
-.vc-mi span{font-size:.84rem;font-weight:700;color:var(--ink)}
-.vc-loc{margin-top:12px;font-size:.74rem;color:var(--mid)}
-.vc-loc a{color:var(--red);font-weight:600}
-.vc-footer{
-  background:var(--fog);border-top:1px solid var(--mist);
-  padding:8px 24px;font-size:.46rem;color:var(--silver);
-  display:flex;align-items:center;justify-content:space-between}
-.vc-tooltip{position:relative;cursor:help;text-decoration:underline dotted}
-.vc-tooltip::after{
-  content:attr(data-tip);position:absolute;bottom:100%;right:0;
-  background:var(--ink);color:#fff;font-size:.6rem;padding:6px 10px;
-  border-radius:6px;white-space:nowrap;pointer-events:none;
-  opacity:0;transform:translateY(4px);transition:var(--tr);z-index:10;margin-bottom:4px}
-.vc-tooltip:hover::after{opacity:1;transform:translateY(0)}
-/* red top stripe */
-.voucher-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--red);z-index:2}
+/* ═══ PRESETS ═══ */
+.presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.prb{padding:4px 10px;border-radius:100px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);font-family:'Heebo',sans-serif;
+  font-size:0.71rem;cursor:pointer;transition:all 0.18s;}
+.prb:hover{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,0.08);}
 
-/* ══════════════════════════════════════════════
-   HYPE COUNTER
-══════════════════════════════════════════════ */
-.hype-block{
-  margin:28px 0;background:var(--white);
-  border-radius:var(--r2);padding:22px 26px;
-  border-right:4px solid var(--red);
-  box-shadow:var(--sh);position:relative;overflow:hidden}
-.hype-block::after{content:'';position:absolute;top:-20px;left:-20px;
-  width:140px;height:140px;border-radius:50%;
-  background:rgba(200,16,46,.04);pointer-events:none}
-.hype-num{font-family:var(--ffs);font-size:3rem;font-weight:900;color:var(--ink);line-height:1}
-.hype-unit{font-size:.74rem;color:var(--mid);letter-spacing:.5px;margin-top:2px}
-.hype-msg{font-size:.96rem;color:var(--ink);margin-top:10px;line-height:1.65;font-style:italic}
-.hype-track{height:4px;background:var(--mist);border-radius:2px;margin-top:14px;overflow:hidden}
-.hype-fill{height:100%;background:var(--red);border-radius:2px;transition:width 1.5s .4s ease}
+/* ═══ MAIN BUTTON ═══ */
+.paybtn{width:100%;margin-top:18px;padding:14px;border-radius:12px;border:none;
+  background:linear-gradient(135deg,#c9a84c,#f0d47a);color:#000;
+  font-family:'Heebo',sans-serif;font-weight:900;font-size:0.98rem;cursor:pointer;
+  transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.paybtn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,168,76,0.4);}
+.paybtn:active{transform:translateY(0);}
 
-/* ══════════════════════════════════════════════
-   AUDIO PLAYER
-══════════════════════════════════════════════ */
-.audio-block{
-  margin:28px 0;background:var(--white);border-radius:var(--r2);
-  overflow:hidden;border:1.5px solid var(--mist);box-shadow:var(--sh)}
-.ap-topbar{
-  background:var(--ink);padding:9px 16px;
-  display:flex;align-items:center;gap:10px}
-.ap-label{font-size:.56rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.45)}
-.ap-wave{display:flex;align-items:flex-end;gap:2px;height:14px;margin-right:auto}
-.ap-wv{width:2px;background:rgba(200,16,46,.7);border-radius:1px;animation:apwv .9s ease-in-out infinite alternate}
-@keyframes apwv{from{transform:scaleY(.15)}to{transform:scaleY(1)}}
-.ap-wv.paused{animation-play-state:paused}
-.ap-body{padding:14px 16px}
-.ap-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-/* Console play button */
-.ap-play{
-  width:40px;height:40px;border-radius:6px;flex-shrink:0;border:none;cursor:pointer;
-  background:linear-gradient(180deg,#256638,#1a4a28);
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 2px 6px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.1);
-  transition:var(--tr)}
-.ap-play:hover{background:linear-gradient(180deg,#2f8048,#226035);transform:translateY(-1px)}
-.ap-play:active{transform:translateY(1px)}
-.ap-play svg{width:14px;height:14px;fill:#7fdd9a}
-.ap-info .ap-tname{font-size:.86rem;font-weight:700;color:var(--ink)}
-.ap-info .ap-artist{font-size:.68rem;color:var(--mid);margin-top:1px}
-.ap-progress{display:flex;align-items:center;gap:10px}
-.ap-track{flex:1;height:4px;background:var(--mist);border-radius:2px;cursor:pointer;position:relative}
-.ap-fill{height:100%;background:var(--red);border-radius:2px;width:0%;transition:width .4s linear;pointer-events:none}
-.ap-time{font-size:.6rem;color:var(--silver);white-space:nowrap;font-weight:600;letter-spacing:.5px}
-audio#rxAudio{display:none}
+/* ═══ VOUCHER CSS (shared with view.html) ═══ */
+.voucher{padding:32px 36px;min-height:320px;display:flex;flex-direction:column;
+  position:relative;overflow:hidden;}
 
-/* ══════════════════════════════════════════════
-   CHECKLIST WITH TABS
-══════════════════════════════════════════════ */
-.cl-block{margin:28px 0;background:var(--white);border-radius:var(--r2);
-  overflow:hidden;border:1.5px solid var(--mist);box-shadow:var(--sh)}
-.cl-tabs{display:flex;border-bottom:1px solid var(--mist)}
-.cl-tab{
-  flex:1;padding:11px 8px;text-align:center;cursor:pointer;
-  font-size:.74rem;font-weight:700;color:var(--silver);
-  border-bottom:2px solid transparent;margin-bottom:-1px;transition:var(--tr)}
-.cl-tab:hover{color:var(--ink)}
-.cl-tab.on{color:var(--red);border-bottom-color:var(--red)}
-.cl-panel{display:none;padding:4px 0 4px}
-.cl-panel.on{display:block}
-.cl-item{
-  display:flex;align-items:flex-start;gap:12px;padding:12px 18px;
-  border-bottom:1px solid var(--mist);cursor:pointer;transition:var(--tr)}
-.cl-item:last-child{border-bottom:none}
-.cl-item:hover{background:var(--fog)}
-.cl-box{
-  width:20px;height:20px;border-radius:5px;border:2px solid var(--ash);
-  flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;
-  transition:var(--tr)}
-.cl-item.done .cl-box{background:var(--red);border-color:var(--red)}
-.cl-tick{font-size:.6rem;color:#fff;font-weight:900;opacity:0;transition:opacity .2s}
-.cl-item.done .cl-tick{opacity:1}
-.cl-txt h5{font-size:.88rem;font-weight:700;color:var(--ink);transition:var(--tr);line-height:1.3}
-.cl-txt p{font-size:.72rem;color:var(--mid);margin-top:2px;line-height:1.5}
-.cl-item.done .cl-txt h5{text-decoration:line-through;opacity:.38}
-/* Progress bar inside checklist */
-.cl-progress{padding:12px 18px 14px;border-top:1px solid var(--mist)}
-.cl-prog-track{height:3px;background:var(--mist);border-radius:2px;margin-top:6px}
-.cl-prog-fill{height:100%;background:var(--red);border-radius:2px;transition:width .4s ease}
-.cl-prog-label{font-size:.62rem;color:var(--mid);display:flex;justify-content:space-between}
+/* BG variations */
+.vbg0{background:linear-gradient(135deg,#060412 0%,#0e0b28 50%,#060412 100%);}
+.vbg1{background:linear-gradient(135deg,#12062a 0%,#2d0d4e 50%,#1a0830 100%);}
+.vbg2{background:linear-gradient(135deg,#071022 0%,#0e2040 60%,#071022 100%);}
+.vbg3{background:linear-gradient(135deg,#1a0c00 0%,#3d1f00 50%,#1a0c00 100%);}
+.vbg4{background:linear-gradient(160deg,#f5f0e8 0%,#ede4d0 100%);}
 
-/* ══════════════════════════════════════════════
-   INSTAGRAM CTA
-══════════════════════════════════════════════ */
-.ig-card{
-  display:flex;align-items:center;gap:14px;padding:16px 20px;
-  background:var(--white);border:1.5px solid var(--mist);border-radius:var(--r2);
-  text-decoration:none;margin:28px 0;transition:var(--tr);cursor:pointer}
-.ig-card:hover{border-color:var(--red);box-shadow:var(--shr);transform:translateY(-1px)}
-.ig-icon{width:44px;height:44px;border-radius:10px;background:var(--red);
-  flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.ig-icon svg{width:22px;height:22px;fill:#fff}
-.ig-text h5{font-size:.9rem;font-weight:700;color:var(--ink)}
-.ig-text p{font-size:.72rem;color:var(--mid);margin-top:2px}
-.ig-arrow{margin-right:auto;color:var(--red);font-size:1.2rem}
+.voucher::before{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse at 20% 20%,rgba(201,168,76,0.07) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 80%,rgba(201,168,76,0.04) 0%,transparent 50%);}
+.vbg4::before{background:radial-gradient(ellipse at 80% 20%,rgba(107,72,0,0.06) 0%,transparent 60%);}
 
-/* ══════════════════════════════════════════════
-   WHATSAPP CTA
-══════════════════════════════════════════════ */
-.wa-cta{
-  display:flex;align-items:center;gap:14px;padding:17px 22px;
-  background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:var(--r2);
-  text-decoration:none;margin:20px 0;transition:var(--tr);cursor:pointer}
-.wa-cta:hover{border-color:#25d366;box-shadow:0 4px 20px rgba(37,211,102,.18);transform:translateY(-1px)}
-.wa-icon{width:44px;height:44px;border-radius:10px;background:#25d366;
-  flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
-.wa-text h5{font-size:.9rem;font-weight:700;color:var(--ink)}
-.wa-text p{font-size:.72rem;color:#16a34a;margin-top:2px}
-.wa-arrow{margin-right:auto;color:#25d366;font-size:1.2rem}
+/* Border + corners */
+.v-bdr{position:absolute;inset:12px;border:1px solid rgba(201,168,76,0.22);
+  border-radius:8px;pointer-events:none;}
+.vbg4 .v-bdr{border-color:rgba(0,0,0,0.1);}
 
-/* ══════════════════════════════════════════════
-   LOCATION CARD
-══════════════════════════════════════════════ */
-.loc-card{
-  background:var(--fog);border-radius:var(--r2);padding:18px 22px;margin:28px 0}
-.loc-card h4{font-size:.6rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--red);margin-bottom:10px}
-.loc-card p{font-size:.88rem;color:var(--ink);line-height:1.65}
-.loc-card a{color:var(--red);font-weight:600}
+.v-cnr{position:absolute;width:16px;height:16px;border-color:rgba(201,168,76,0.45);border-style:solid;}
+.v-cnr.tl{top:8px;right:8px;border-width:2px 0 0 2px;}
+.v-cnr.tr{top:8px;left:8px;border-width:2px 2px 0 0;}
+.v-cnr.bl{bottom:8px;right:8px;border-width:0 0 2px 2px;}
+.v-cnr.br{bottom:8px;left:8px;border-width:0 2px 2px 0;}
+.vbg4 .v-cnr{border-color:rgba(0,0,0,0.18);}
 
-/* ══════════════════════════════════════════════
-   POST-SESSION GALLERY
-══════════════════════════════════════════════ */
-.gal-section{margin-top:44px}
-.gal-hdr{font-size:.6rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:16px}
-.gal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.gal-img{border-radius:var(--r2);overflow:hidden;border:1px solid var(--mist);
-  aspect-ratio:4/3;background:var(--fog);display:flex;align-items:center;justify-content:center}
-.gal-img img{width:100%;height:100%;object-fit:cover;display:block}
-.gal-audio{grid-column:1/-1;background:var(--fog);border-radius:var(--r2);padding:14px 16px;border:1px solid var(--mist)}
-.gal-audio label{font-size:.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--red);display:block;margin-bottom:8px}
-.gal-audio audio{width:100%;height:36px}
-.gal-orig{grid-column:1/-1;background:var(--white);border:1.5px solid var(--mist);
-  border-radius:var(--r2);padding:18px 20px}
-.gal-orig label{font-size:.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--silver);display:block;margin-bottom:10px}
-.gal-orig p{font-size:.84rem;color:var(--mid);line-height:1.8;font-style:italic;white-space:pre-wrap}
+/* Header */
+.v-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;position:relative;z-index:1;}
+.v-logo{display:flex;align-items:center;gap:9px;}
+.v-mic-ico{font-size:1.4rem;filter:drop-shadow(0 0 7px rgba(201,168,76,0.45));}
+.v-brand{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.68rem;
+  letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);line-height:1.3;}
+.v-brand small{display:block;font-size:0.52rem;color:rgba(201,168,76,0.5);letter-spacing:1.5px;}
+.vbg4 .v-brand{color:#6b4800;}.vbg4 .v-brand small{color:rgba(107,72,0,0.45);}
 
-/* ══════════════════════════════════════════════
-   BOTTOM ACTIONS
-══════════════════════════════════════════════ */
-.bottom-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:44px;padding-top:32px;border-top:1px solid var(--mist)}
-/* Fader buttons (same as admin) */
-.fb{
-  position:relative;overflow:hidden;
-  padding:10px 16px;border-radius:6px;border:none;cursor:pointer;
-  font-family:var(--ff);font-size:.76rem;font-weight:700;letter-spacing:.3px;
-  transition:var(--tr);display:flex;align-items:center;gap:6px}
-.fb::before{content:'';position:absolute;top:0;left:0;right:0;height:42%;
-  background:rgba(255,255,255,.055);pointer-events:none}
-.fb::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
-  background:rgba(0,0,0,.35);pointer-events:none}
-.fb:active{transform:translateY(1px)!important}
-.fb-w{background:linear-gradient(180deg,#323232,#1e1e1e);color:#ccc;
-  box-shadow:0 3px 8px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.09)}
-.fb-w:hover{background:linear-gradient(180deg,#424242,#282828);transform:translateY(-1px)}
-.fb-a{background:linear-gradient(180deg,#7a5a10,#5a3e06);color:#ffd97f;
-  box-shadow:0 3px 8px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.06)}
-.fb-a:hover{background:linear-gradient(180deg,#9a7418,#7a520a);transform:translateY(-1px)}
-.led{width:5px;height:5px;border-radius:50%;flex-shrink:0}
-.lg{background:#7fdd9a;box-shadow:0 0 5px #7fdd9a}
-.la{background:#ffd97f;box-shadow:0 0 5px #ffd97f}
+.v-badge{padding:4px 12px;border-radius:100px;border:1px solid rgba(201,168,76,0.3);
+  background:rgba(201,168,76,0.09);font-family:'Rajdhani',sans-serif;font-weight:700;
+  font-size:0.65rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold2);}
+.vbg4 .v-badge{border-color:rgba(107,72,0,0.25);background:rgba(107,72,0,0.07);color:#6b4800;}
 
-/* ══════════════════════════════════════════════
-   EMBEDDED MODE (Google Sites)
-══════════════════════════════════════════════ */
-body.embedded #gateScreen{min-height:80vh}
-body.embedded #letterPage{padding-top:30px}
+/* Body */
+.v-body{flex:1;position:relative;z-index:1;}
+.v-tolbl{font-size:0.62rem;color:var(--muted);font-family:'Rajdhani',sans-serif;
+  font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.vbg4 .v-tolbl{color:rgba(0,0,0,0.38);}
+.v-name{font-family:'Frank Ruhl Libre',serif;font-weight:900;font-size:2.7rem;
+  line-height:1;color:var(--gold2);margin-bottom:12px;
+  text-shadow:0 2px 20px rgba(201,168,76,0.28);}
+.vbg4 .v-name{color:#3d2800;text-shadow:none;}
+.v-pkgname{font-family:'Frank Ruhl Libre',serif;font-weight:700;font-size:1.1rem;
+  color:rgba(237,232,255,0.85);margin-bottom:3px;}
+.vbg4 .v-pkgname{color:rgba(0,0,0,0.62);}
+.v-pkgdesc{font-size:0.76rem;color:var(--muted);margin-bottom:14px;line-height:1.5;}
+.vbg4 .v-pkgdesc{color:rgba(0,0,0,0.38);}
+.v-msg{font-family:'Frank Ruhl Libre',serif;font-size:0.9rem;font-weight:400;
+  color:rgba(237,232,255,0.68);line-height:1.65;font-style:italic;
+  padding:11px 13px;border-right:3px solid rgba(201,168,76,0.35);
+  background:rgba(255,255,255,0.03);border-radius:0 7px 7px 0;margin-bottom:14px;}
+.vbg4 .v-msg{color:rgba(0,0,0,0.52);border-color:rgba(107,72,0,0.28);background:rgba(0,0,0,0.03);}
 
-/* ══════════════════════════════════════════════
-   TOAST
-══════════════════════════════════════════════ */
-.toast{
-  position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);
-  background:var(--ink);border-radius:100px;padding:10px 22px;
-  color:#fff;font-size:.78rem;font-weight:600;z-index:9999;
-  transition:transform .4s cubic-bezier(.4,0,.2,1);white-space:nowrap;
-  box-shadow:0 4px 20px rgba(0,0,0,.2);pointer-events:none}
-.toast.show{transform:translateX(-50%) translateY(0)}
+/* Footer */
+.v-ft{display:flex;align-items:flex-end;justify-content:space-between;
+  position:relative;z-index:1;padding-top:13px;border-top:1px solid rgba(255,255,255,0.06);}
+.vbg4 .v-ft{border-color:rgba(0,0,0,0.08);}
+.v-meta{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:0.65rem;
+  letter-spacing:0.4px;color:var(--muted);line-height:1.65;}
+.vbg4 .v-meta{color:rgba(0,0,0,0.38);}
+.v-from{text-align:left;}
+.v-fromlbl{display:block;font-family:'Rajdhani',sans-serif;font-size:0.58rem;
+  letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:1px;}
+.v-fromname{font-family:'Frank Ruhl Libre',serif;font-size:0.85rem;
+  color:rgba(201,168,76,0.7);}
+.vbg4 .v-fromlbl{color:rgba(0,0,0,0.35);}.vbg4 .v-fromname{color:rgba(107,72,0,0.55);}
 
-/* ══════════════════════════════════════════════
-   PRINT
-══════════════════════════════════════════════ */
+/* Preview wrapper */
+#vPrev{width:100%;max-width:560px;border-radius:16px;overflow:hidden;
+  box-shadow:0 40px 110px rgba(0,0,0,0.8),0 0 0 1px rgba(201,168,76,0.18);
+  transition:transform 0.3s;}
+.prev-lbl{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.63rem;
+  letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);
+  margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.ldot{width:6px;height:6px;border-radius:50%;background:#ff3b30;
+  animation:blink 1.2s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* ═══ PAYMENT MODAL ═══ */
+.modal{position:fixed;inset:0;background:rgba(6,4,18,0.93);backdrop-filter:blur(22px);
+  -webkit-backdrop-filter:blur(22px);z-index:200;display:none;
+  align-items:center;justify-content:center;padding:20px;}
+.modal.open{display:flex;}
+.mbox{width:100%;max-width:460px;background:var(--bg2);border:1px solid var(--border);
+  border-radius:20px;padding:32px;box-shadow:0 40px 120px rgba(0,0,0,0.8);}
+.mbox h2{font-family:'Frank Ruhl Libre',serif;font-size:1.45rem;font-weight:900;
+  color:var(--gold2);margin-bottom:6px;}
+.mbox p{font-size:0.83rem;color:var(--muted);margin-bottom:20px;line-height:1.65;}
+.pay-link-btn{display:block;width:100%;padding:14px;border-radius:12px;border:none;
+  background:linear-gradient(135deg,#c9a84c,#f0d47a);color:#000;
+  font-family:'Heebo',sans-serif;font-weight:900;font-size:1rem;cursor:pointer;
+  margin-bottom:20px;transition:all 0.2s;text-align:center;text-decoration:none;}
+.pay-link-btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(201,168,76,0.4);}
+.divider{display:flex;align-items:center;gap:12px;margin-bottom:18px;
+  color:var(--muted);font-size:0.74rem;letter-spacing:0.5px;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border2);}
+.coderow{display:flex;gap:8px;}
+.coderow input{flex:1;letter-spacing:2px;font-family:'Rajdhani',sans-serif;
+  font-weight:700;font-size:1.05rem;text-transform:uppercase;}
+.cbtn{padding:9px 16px;border-radius:10px;border:none;background:var(--green);
+  color:#fff;font-family:'Heebo',sans-serif;font-weight:700;font-size:0.85rem;
+  cursor:pointer;white-space:nowrap;transition:all 0.2s;}
+.cbtn:hover{background:#28a745;}
+.skip-btn{display:block;width:100%;margin-top:12px;padding:8px;border:none;
+  background:transparent;color:var(--muted);font-family:'Heebo',sans-serif;
+  font-size:0.78rem;cursor:pointer;text-align:center;transition:color 0.2s;}
+.skip-btn:hover{color:var(--text);}
+
+/* ═══ SHARE OVERLAY ═══ */
+.share-overlay{position:fixed;inset:0;background:rgba(6,4,18,0.94);backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);z-index:200;display:none;
+  align-items:center;justify-content:center;padding:20px;}
+.share-overlay.open{display:flex;}
+.sbox{width:100%;max-width:500px;background:var(--bg2);border:1px solid var(--border);
+  border-radius:22px;padding:30px 28px;box-shadow:0 40px 120px rgba(0,0,0,0.8);}
+.s-ttl{font-family:'Frank Ruhl Libre',serif;font-size:1.6rem;font-weight:900;
+  color:var(--gold2);text-align:center;margin-bottom:3px;}
+.s-sub{font-size:0.82rem;color:var(--muted);text-align:center;margin-bottom:22px;}
+
+/* Code display */
+.code-box{display:flex;align-items:center;gap:14px;background:rgba(201,168,76,0.07);
+  border:1px solid rgba(201,168,76,0.22);border-radius:13px;padding:14px 20px;margin-bottom:24px;}
+.code-icon{font-size:1.4rem;}
+.code-txt{flex:1;}
+.code-lbl{font-family:'Rajdhani',sans-serif;font-size:0.6rem;letter-spacing:2px;
+  text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px;}
+.code-val{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.5rem;
+  letter-spacing:4px;color:var(--gold2);}
+.code-copy{padding:6px 12px;border-radius:8px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);font-family:'Heebo',sans-serif;
+  font-size:0.72rem;cursor:pointer;transition:all 0.18s;white-space:nowrap;}
+.code-copy:hover{border-color:var(--gold);color:var(--gold);}
+
+/* Two main share buttons */
+.share-main{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.sm-btn{padding:16px 12px;border-radius:14px;border:none;cursor:pointer;
+  font-family:'Heebo',sans-serif;font-weight:700;font-size:0.9rem;
+  transition:all 0.2s;display:flex;flex-direction:column;align-items:center;gap:5px;line-height:1.3;}
+.sm-btn:hover{transform:translateY(-2px);}
+.sm-btn .ico{font-size:1.5rem;}
+.sm-btn .lbl{font-size:0.88rem;}
+.sm-btn .sub{font-size:0.63rem;opacity:0.72;font-weight:400;}
+.btn-ya{background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;}
+.btn-ya:hover{box-shadow:0 8px 24px rgba(37,211,102,0.32);}
+.btn-bu{background:linear-gradient(135deg,#c9a84c,#f0d47a);color:#000;}
+.btn-bu:hover{box-shadow:0 8px 24px rgba(201,168,76,0.38);}
+
+/* Utility row */
+.share-utils{display:flex;gap:8px;margin-bottom:14px;}
+.ubtn{flex:1;padding:10px 8px;border-radius:10px;border:1px solid var(--border2);
+  background:var(--surface);color:var(--text);font-family:'Heebo',sans-serif;
+  font-size:0.75rem;font-weight:600;cursor:pointer;transition:all 0.2s;
+  display:flex;align-items:center;justify-content:center;gap:5px;position:relative;}
+.ubtn:hover{border-color:var(--border);background:var(--surface2);}
+.imgdrop-menu{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+  background:#111;border:1px solid var(--border);border-radius:10px;
+  overflow:hidden;display:none;min-width:150px;
+  box-shadow:0 8px 28px rgba(0,0,0,0.6);z-index:10;}
+.imgdrop-menu.open{display:block;}
+.idm-item{display:block;width:100%;padding:10px 14px;border:none;background:transparent;
+  color:var(--text);font-family:'Heebo',sans-serif;font-size:0.79rem;cursor:pointer;
+  text-align:right;transition:background 0.15s;border-bottom:1px solid var(--border2);}
+.idm-item:last-child{border-bottom:none;}
+.idm-item:hover{background:var(--surface2);}
+
+.s-back{display:block;width:100%;padding:7px;border:none;background:transparent;
+  color:var(--muted);font-family:'Heebo',sans-serif;font-size:0.78rem;cursor:pointer;
+  text-align:center;transition:color 0.2s;}
+.s-back:hover{color:var(--text);}
+
+/* ═══ TOAST ═══ */
+.toast{position:fixed;bottom:28px;left:50%;
+  transform:translateX(-50%) translateY(16px);
+  background:rgba(18,16,38,0.96);border:1px solid var(--border);border-radius:100px;
+  padding:10px 22px;font-size:0.84rem;font-weight:600;color:var(--text);
+  z-index:999;transition:all 0.28s;opacity:0;pointer-events:none;
+  backdrop-filter:blur(10px);white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ═══ PRINT ═══ */
 @media print{
-  @page{size:A4;margin:14mm}
-  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-  body{background:#fff!important}
-  #ambientCanvas,#pwdGate,#gateScreen,
-  .hype-block,.audio-block,.cl-block,.ig-card,.wa-cta,.loc-card,
-  .gal-section,.bottom-actions,.toast{display:none!important}
-  #content{display:block!important}
-  #letterPage{display:block!important;opacity:1!important;transform:none!important;padding:0!important;max-width:100%!important}
-  .voucher-card{box-shadow:none!important;page-break-inside:avoid}
+  .topbar,.fp,.prev-lbl,.modal,.share-overlay,.toast{display:none!important;}
+  .layout{padding-top:0;}
+  .pp{padding:0;justify-content:flex-start;}
+  #vPrev{max-width:100%;box-shadow:none;border-radius:0;}
+  .vbg0,.vbg1,.vbg2,.vbg3,.vbg4{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 }
 
-/* ══════════════════════════════════════════════
-   RESPONSIVE
-══════════════════════════════════════════════ */
-@media(max-width:500px){
-  #letterPage{padding:40px 14px 80px}
-  .vc-body{padding:14px 16px 18px}
-  .vc-hdr{padding:11px 16px}
-  .ltr-text{font-size:.96rem}
-  .vc-meta{grid-template-columns:1fr}
+/* ═══ MOBILE ═══ */
+@media(max-width:768px){
+  html,body{height:auto;overflow:visible;}
+  .layout{flex-direction:column;height:auto;overflow:visible;}
+  .fp{width:100%;border-left:none;border-bottom:1px solid var(--border2);padding-bottom:30px;}
+  .pp{min-height:420px;padding:20px;}
+  .steps{display:none;}
+  #vPrev{max-width:100%;}
 }
 </style>
 </head>
 <body>
 
-<!-- ═══════════ AMBIENT CANVAS ═══════════ -->
-<canvas id="ambientCanvas"></canvas>
-
-<!-- ═══════════ PASSWORD GATE ═══════════ -->
-<div id="pwdGate">
-  <img class="pg-logo"
-    src="https://lh3.googleusercontent.com/sitesv/APaQ0STQv7BhuANWyTWJl9yCKqozK2QUJALzupkij4nzjDE9RTMB1jPnUbPDcQ2wxzXLQ53nCfVtR2_2luuJ9WIESUmASqhKHRkbjlImDF4FhO_unTvLFFeYXrKBPliD8f0Bt7sgM6WIBaY8vqvEgOwlaztpJDy4rzswM-wM-GzopxTSk5Vk8VPRTWyPFoA=w16383"
-    alt="יקיר כהן" onerror="this.style.opacity='.3'">
-  <div class="pg-kicker">יקיר כהן הפקות</div>
-  <h1 class="pg-title">יש לך<br>מכתב מיוחד</h1>
-  <div class="pg-rule"></div>
-  <p class="pg-sub">יקיר שלח לך קוד גישה - הזן אותו כאן:</p>
-  <div class="pg-form">
-    <input class="pg-input" type="text" id="pwdInput" placeholder="XXX-2026-XXX"
-      autocomplete="off" autocapitalize="characters"
-      onkeydown="if(event.key==='Enter')checkPwd()">
-    <button class="pg-btn" onclick="checkPwd()">→</button>
+<!-- ══ TOPBAR ══ -->
+<div class="topbar">
+  <div class="tb-brand">
+    <span class="tb-mic">🎙</span>
+    <span class="tb-name">Yakir Cohen Productions</span>
   </div>
-  <div class="pg-err" id="pgErr">הקוד לא נכון - בדוק שוב עם מי ששלח לך</div>
-  <div class="pg-hint">הקוד נראה כך: NOY-2026-K4X</div>
+  <div class="steps">
+    <div class="step active" id="st1"><div class="sn">1</div>עיצוב</div>
+    <div class="sarr"></div>
+    <div class="step" id="st2"><div class="sn">2</div>תשלום</div>
+    <div class="sarr"></div>
+    <div class="step" id="st3"><div class="sn">3</div>שיתוף</div>
+  </div>
+  <div style="width:220px;text-align:left;">
+    <span style="font-family:'Rajdhani',sans-serif;font-size:0.68rem;letter-spacing:1.5px;color:var(--muted);">VOUCHER CREATOR 3.0</span>
+  </div>
 </div>
 
-<!-- ═══════════ MAIN CONTENT ═══════════ -->
-<div id="content">
+<!-- ══ LAYOUT ══ -->
+<div class="layout">
 
-  <!-- GATE SCREEN -->
-  <div id="gateScreen">
-    <img class="gs-logo"
-      src="https://lh3.googleusercontent.com/sitesv/APaQ0STQv7BhuANWyTWJl9yCKqozK2QUJALzupkij4nzjDE9RTMB1jPnUbPDcQ2wxzXLQ53nCfVtR2_2luuJ9WIESUmASqhKHRkbjlImDF4FhO_unTvLFFeYXrKBPliD8f0Bt7sgM6WIBaY8vqvEgOwlaztpJDy4rzswM-wM-GzopxTSk5Vk8VPRTWyPFoA=w16383"
-      alt="" onerror="this.style.display='none'">
-    <div class="gs-kicker">יקיר כהן הפקות</div>
-    <h1 class="gs-title">יש לך<br>מכתב מיוחד</h1>
-    <div class="gs-rule"></div>
-    <div class="gs-sender" id="gsSenderBadge" style="display:none">
-      נשלח על ידי: <strong id="gsSenderName">-</strong>
-    </div>
-    <p class="gs-sub">מישהו שאוהב אותך שלח לך דבר מה שלא תשכח לעולם</p>
-    <button class="gs-open-btn" onclick="revealLetter()">
-      פתח את המכתב <span class="gs-arrow">←</span>
-    </button>
-    <p class="gs-fine">לחץ כדי לגלות</p>
-  </div>
+  <!-- FORM PANEL -->
+  <aside class="fp">
 
-  <!-- LETTER PAGE -->
-  <div id="letterPage">
-
-    <!-- Header -->
-    <div class="ltr-hdr">
-      <img class="ltr-hdr-logo"
-        src="https://lh3.googleusercontent.com/sitesv/APaQ0STQv7BhuANWyTWJl9yCKqozK2QUJALzupkij4nzjDE9RTMB1jPnUbPDcQ2wxzXLQ53nCfVtR2_2luuJ9WIESUmASqhKHRkbjlImDF4FhO_unTvLFFeYXrKBPliD8f0Bt7sgM6WIBaY8vqvEgOwlaztpJDy4rzswM-wM-GzopxTSk5Vk8VPRTWyPFoA=w16383"
-        alt="יקיר כהן" onerror="this.style.display='none'">
-      <div class="ltr-hdr-date" id="rxDate"></div>
-      <div class="ltr-hdr-loc" id="rxLoc"></div>
+    <!-- Template -->
+    <div class="sl">🎨 עיצוב שובר</div>
+    <div class="tg">
+      <div class="tc t0 on" id="tc0" onclick="selTpl(0)"><span>זהב קלאסי</span></div>
+      <div class="tc t1" id="tc1" onclick="selTpl(1)"><span>בת מצווה</span></div>
+      <div class="tc t2" id="tc2" onclick="selTpl(2)"><span>בר מצווה</span></div>
+      <div class="tc t3" id="tc3" onclick="selTpl(3)"><span>יום הולדת</span></div>
+      <div class="tc t4" id="tc4" onclick="selTpl(4)"><span>מינימל</span></div>
     </div>
 
-    <!-- Salutation -->
-    <div class="ltr-salutation" id="rxSalutation"></div>
-
-    <!-- STT Bubble (shown only if message came from STT) -->
-    <div class="stt-bubble" id="sttBubble" style="display:none">
-      <div class="stt-bubble-label">ברכה שהוקלטה בקול</div>
-      <div id="sttBubbleText"></div>
-    </div>
-
-    <!-- Regular letter text -->
-    <div class="ltr-text" id="rxMessage"></div>
-
-    <!-- Closing -->
-    <div class="ltr-close">
-      <div class="ltr-close-by">באהבה רבה,</div>
-      <svg class="ltr-sig-svg" width="130" height="40" viewBox="0 0 130 40">
-        <path class="sig-path" d="M5,32 C16,8 30,4 35,15 C40,24 30,31 25,29 C20,27 22,18 28,14 C37,9 52,20 58,26 C64,32 68,28 76,18 C84,8 91,6 98,16 C105,26 102,31 108,28 C115,22 120,13 126,10 C129,9 131,15 131,22"/>
-        <path class="sig-path" d="M18,36 Q26,33 36,36" stroke-width=".9" opacity=".4"/>
-      </svg>
-      <div class="ltr-sig-name" id="rxFromName"></div>
-      <div class="ltr-sig-role" id="rxFromRole"></div>
-    </div>
-
-    <!-- Contributors -->
-    <div class="contribs-block" id="rxContribs" style="display:none">
-      <div class="contribs-label">גם הם ממתינים לך 💛</div>
-      <div class="contribs-list" id="rxContribList"></div>
-    </div>
-
-    <!-- Separator -->
-    <div class="sep"><span>· השובר שלך ·</span></div>
-
-    <!-- Voucher Card -->
-    <div class="voucher-card" id="rxVoucher">
-      <div class="vc-hdr">
-        <img src="https://lh3.googleusercontent.com/sitesv/APaQ0STQv7BhuANWyTWJl9yCKqozK2QUJALzupkij4nzjDE9RTMB1jPnUbPDcQ2wxzXLQ53nCfVtR2_2luuJ9WIESUmASqhKHRkbjlImDF4FhO_unTvLFFeYXrKBPliD8f0Bt7sgM6WIBaY8vqvEgOwlaztpJDy4rzswM-wM-GzopxTSk5Vk8VPRTWyPFoA=w16383"
-          alt="" onerror="this.style.display='none'">
-        <span class="vc-badge">GIFT VOUCHER · שובר מתנה</span>
+    <!-- Package -->
+    <div class="sl">💎 חבילה</div>
+    <div class="pkgrow">
+      <div class="pc" id="pc0" onclick="selPkg(0)">
+        <span class="pc-p">₪990</span><span class="pc-n">בסיס</span>
       </div>
-      <div class="vc-body">
-        <div class="vc-pkg" id="rxPkgName">חבילת Silver</div>
-        <div class="vc-price" id="rxPkgPrice">₪1,480</div>
-        <div class="vc-desc" id="rxPkgDesc"></div>
-        <hr class="vc-divider">
-        <div class="vc-meta">
-          <div class="vc-mi"><label>ל:</label><span id="rxToName">-</span></div>
-          <div class="vc-mi"><label>מאת:</label><span id="rxFromNameCard">-</span></div>
-          <div class="vc-mi"><label>תוקף עד:</label><span id="rxVDate">-</span></div>
-          <div class="vc-mi"><label>מזהה:</label><span id="rxPid" style="font-size:.72rem;letter-spacing:.5px"></span></div>
-        </div>
-        <div class="vc-loc">
-          📍 <span id="rxAddr">עמק איילון 34, מודיעין</span> ·
-          <a id="rxWaze" href="#" target="_blank">פתח בוויז ←</a>
-        </div>
-        <div id="rxVoucherContribs" style="display:none;margin-top:10px;display:flex;flex-wrap:wrap;gap:4px"></div>
+      <div class="pc on" id="pc1" onclick="selPkg(1)">
+        <span class="pc-p">₪1,480</span><span class="pc-n">Silver</span>
       </div>
-      <div class="vc-footer">
-        <span>Sample Rate: 24-bit/96kHz · Engineer: Yakir Cohen</span>
-        <span class="vc-tooltip" data-tip="בתוקף לשנה | אין כפל מבצעים">תנאים ←</span>
+      <div class="pc" id="pc2" onclick="selPkg(2)">
+        <span class="pc-p">₪2,380</span><span class="pc-n">VIP 👑</span>
       </div>
     </div>
 
-    <!-- Hype Counter -->
-    <div class="hype-block">
-      <div class="hype-num" id="hypeDays">0</div>
-      <div class="hype-unit">ימים מאז שקיבלת את המתנה</div>
-      <div class="hype-msg" id="hypeMsg"></div>
-      <div class="hype-track"><div class="hype-fill" id="hypeFill" style="width:0%"></div></div>
+    <label class="hp-row" id="hpRow">
+      <input type="checkbox" id="hidePrice" onchange="S.hidePrice=this.checked;this.closest('.hp-row').classList.toggle('on',S.hidePrice);render()">
+      <span>🙈 הסתר מחיר בשובר</span>
+    </label>
+
+    <!-- Details -->
+    <div class="sl">👤 פרטים</div>
+    <div class="fld">
+      <label>שם מקבל המתנה</label>
+      <input type="text" id="toName" placeholder="נועה / יונתן" oninput="render()">
+    </div>
+    <div class="fld">
+      <label>שם שולח המתנה</label>
+      <input type="text" id="fromName" placeholder="אמא ואבא" oninput="render()">
+    </div>
+    <div class="fld">
+      <label>תאריך ושעה</label>
+      <input type="text" id="datetime" placeholder="15/06/2026 · 18:00" oninput="render()">
+    </div>
+    <div class="fld">
+      <label>כתובת האולפן</label>
+      <input type="text" id="address" value="עמק איילון 34, מודיעין" oninput="render()">
     </div>
 
-    <!-- Audio Player -->
-    <div class="audio-block" id="audioBlock" style="display:none">
-      <div class="ap-topbar">
-        <span class="ap-label">פלייבק לאימון</span>
-        <div class="ap-wave" id="apWave"></div>
-      </div>
-      <div class="ap-body">
-        <div class="ap-row">
-          <button class="ap-play" id="apPlayBtn" onclick="toggleAudio()">
-            <svg id="apPlayIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-          </button>
-          <div class="ap-info">
-            <div class="ap-tname" id="apTitle">Rough Mix Preview</div>
-            <div class="ap-artist">יקיר כהן הפקות</div>
-          </div>
-        </div>
-        <div class="ap-progress">
-          <div class="ap-track" id="apTrack" onclick="seekAudio(event)">
-            <div class="ap-fill" id="apFill"></div>
-          </div>
-          <div class="ap-time" id="apTime">0:00 / 0:00</div>
-        </div>
-      </div>
+    <!-- Message -->
+    <div class="sl">✍️ ברכה אישית</div>
+    <div class="presets">
+      <button class="prb" onclick="loadPr('bat')">🕍 בת מצווה</button>
+      <button class="prb" onclick="loadPr('bar')">✡️ בר מצווה</button>
+      <button class="prb" onclick="loadPr('bday')">🎂 יום הולדת</button>
+      <button class="prb" onclick="loadPr('love')">💕 רומנטי</button>
+      <button class="prb" onclick="loadPr('pro')">🎯 מקצועי</button>
     </div>
-    <audio id="rxAudio"></audio>
+    <div class="fld">
+      <textarea id="message" placeholder="כתוב ברכה מהלב..." maxlength="400" oninput="syncMsg()"></textarea>
+      <div class="ccount" id="cc">0 / 400</div>
+    </div>
 
-    <!-- Instagram CTA -->
-    <a class="ig-card" id="igCard" href="#" target="_blank" rel="noopener">
-      <div class="ig-icon">
-        <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-      </div>
-      <div class="ig-text">
-        <h5>Watch Studio Guide</h5>
-        <p>צפה בסרטון - איך להתכונן לסשן הקלטה</p>
-      </div>
-      <div class="ig-arrow">←</div>
+    <button class="paybtn" onclick="openPay()">💳 המשך לתשלום</button>
+
+  </aside>
+
+  <!-- PREVIEW PANEL -->
+  <main class="pp">
+    <div class="prev-lbl"><div class="ldot"></div> Live Preview · Auto Sync</div>
+    <div id="vPrev"></div>
+  </main>
+</div>
+
+<!-- ══ PAYMENT MODAL ══ -->
+<div class="modal" id="payModal">
+  <div class="mbox">
+    <h2>💳 שלב 2 - תשלום</h2>
+    <p>לחץ לפתיחת עמוד התשלום בחשבונית ירוקה. לאחר התשלום, חזור לכאן והדבק את קוד האישור שקיבלת.</p>
+    <a class="pay-link-btn" id="payLinkBtn" href="#" target="_blank">
+      פתח עמוד תשלום →
     </a>
+    <div class="divider">שולם? הדבק קוד אישור</div>
+    <div class="coderow">
+      <input type="text" id="confCode" placeholder="דוגמה: 2026-ABCD" oninput="this.value=this.value.toUpperCase()" autocomplete="off">
+      <button class="cbtn" onclick="confirmPay()">אשר ✓</button>
+    </div>
+    <button class="skip-btn" onclick="skipPay()">← אשר ללא קוד (שולם במזומן / הסכמה ישירה)</button>
+  </div>
+</div>
 
-    <!-- WhatsApp one-touch -->
-    <div class="wa-cta" id="waCta" onclick="bookWA()">
-      <div class="wa-icon">📱</div>
-      <div class="wa-text">
-        <h5>תאם סשן בנגיעה אחת</h5>
-        <p id="waCtaDesc">הודעה מוכנה תישלח ישירות ליקיר</p>
+<!-- ══ SHARE OVERLAY ══ -->
+<div class="share-overlay" id="shareOverlay">
+  <div class="sbox">
+    <div class="s-ttl">🎉 השובר מוכן!</div>
+    <div class="s-sub" id="s-sub">שובר הוקצה בהצלחה</div>
+
+    <div class="code-box">
+      <div class="code-icon">🎟</div>
+      <div class="code-txt">
+        <span class="code-lbl">קוד השובר</span>
+        <div class="code-val" id="codeDisp">NOY-2026-XXXX</div>
       </div>
-      <div class="wa-arrow">←</div>
+      <button class="code-copy" onclick="copyCode()">העתק קוד</button>
     </div>
 
-    <!-- Checklist with tabs -->
-    <div class="cl-block">
-      <div class="cl-tabs">
-        <div class="cl-tab on" onclick="switchTab(0)">💧 גוף ונפש</div>
-        <div class="cl-tab" onclick="switchTab(1)">🎵 אמנות</div>
-      </div>
-      <div class="cl-panel on" id="clPanel0"></div>
-      <div class="cl-panel" id="clPanel1"></div>
-      <div class="cl-progress">
-        <div class="cl-prog-label">
-          <span>הכנות שהשלמת</span>
-          <span id="clProgText">0 / 6</span>
+    <div class="share-main">
+      <button class="sm-btn btn-ya" onclick="shareYakir()">
+        <span class="ico">📲</span>
+        <span class="lbl">יקיר שולח</span>
+        <span class="sub">WA מאצל יקיר</span>
+      </button>
+      <button class="sm-btn btn-bu" onclick="shareBuyer()">
+        <span class="ico">🎁</span>
+        <span class="lbl">הקונה שולח</span>
+        <span class="sub">שתף לחבר / משפחה</span>
+      </button>
+    </div>
+
+    <div class="share-utils">
+      <button class="ubtn" onclick="copyLink()">🔗 העתק קישור</button>
+      <div class="ubtn" style="position:relative;cursor:default;">
+        <button style="all:unset;cursor:pointer;display:flex;align-items:center;gap:5px;font-size:0.75rem;font-weight:600;color:var(--text);" onclick="toggleImgMenu()">🖼️ תמונה ▾</button>
+        <div class="imgdrop-menu" id="imgMenu">
+          <button class="idm-item" onclick="dlImg('standard')">📐 PNG רגיל (1200×800)</button>
+          <button class="idm-item" onclick="dlImg('story')">📱 סטורי (1080×1920)</button>
+          <button class="idm-item" onclick="dlImg('square')">⬛ ריבוע (1080×1080)</button>
         </div>
-        <div class="cl-prog-track"><div class="cl-prog-fill" id="clProgFill" style="width:0%"></div></div>
       </div>
+      <button class="ubtn" onclick="printV()">🖨️ הדפס</button>
     </div>
 
-    <!-- Location -->
-    <div class="loc-card">
-      <h4>כתובת האולפן</h4>
-      <p id="rxLocText">עמק איילון 34, מודיעין</p>
-      <p style="margin-top:8px">
-        <a id="rxLocWaze" href="https://waze.com/ul?q=יקיר+כהן+מודיעין" target="_blank">🗺️ פתח בוויז ←</a>
-      </p>
-    </div>
+    <button class="s-back" onclick="closeShare()">← חזור לעריכה</button>
+  </div>
+</div>
 
-    <!-- Post-session gallery -->
-    <div class="gal-section" id="galSection" style="display:none">
-      <div class="sep"><span>· גלריית הזיכרון ·</span></div>
-      <div class="gal-hdr">המסע שלי באולפן</div>
-      <div class="gal-grid" id="galGrid"></div>
-    </div>
-
-    <!-- Bottom actions -->
-    <div class="bottom-actions">
-      <button class="fb fb-w" onclick="window.print()"><span class="led" style="background:#aaa"></span>🖨️ הדפס שובר</button>
-      <button class="fb fb-a" onclick="saveStoryPNG()"><span class="led la"></span>📸 שמור כזיכרון</button>
-      <button class="fb fb-w" onclick="bookWA()"><span class="led" style="background:#7fdd9a;box-shadow:0 0 5px #7fdd9a"></span>📱 שתף</button>
-    </div>
-
-  </div><!-- /letterPage -->
-</div><!-- /content -->
-
+<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
-/* ════════════════════════════════════════════
-   CONFIG
-════════════════════════════════════════════ */
-const LOGO='https://lh3.googleusercontent.com/sitesv/APaQ0STQv7BhuANWyTWJl9yCKqozK2QUJALzupkij4nzjDE9RTMB1jPnUbPDcQ2wxzXLQ53nCfVtR2_2luuJ9WIESUmASqhKHRkbjlImDF4FhO_unTvLFFeYXrKBPliD8f0Bt7sgM6WIBaY8vqvEgOwlaztpJDy4rzswM-wM-GzopxTSk5Vk8VPRTWyPFoA=w16383';
-const WA_YAKIR='972587555456'; // ← שנה למספר של יקיר
+/* ══════════════════════════════════════
+   ⚙️  CONFIG - שנה לפני העלאה
+══════════════════════════════════════ */
+const CFG = {
+  WA_YAKIR: '972501234567',          // ← מספר הוואטסאפ של יקיר (ללא +)
+  VIEW_FILE: 'view.html',             // ← שם קובץ הצפייה
+  PAY_LINKS: {
+    0: 'https://invoiceguru.co.il/pay/base',    // ← חשבונית ירוקה בסיס ₪990
+    1: 'https://invoiceguru.co.il/pay/silver',  // ← Silver ₪1,480
+    2: 'https://invoiceguru.co.il/pay/vip',     // ← VIP ₪2,380
+  },
+  PKGS: {
+    0: { name: 'חבילת בסיס',   price: '₪990',   desc: 'עד שעה · שיר 1 · מיקס · מסטרינג' },
+    1: { name: 'חבילת Silver', price: '₪1,480', desc: 'עד שעתיים · שיר 1 · מיקס · מסטרינג · וידאו' },
+    2: { name: 'חבילת VIP 👑', price: '₪2,380', desc: 'יום שלם · מיקס · מסטרינג · הפקה מלאה' },
+  },
+  STUDIO: 'עמק איילון 34, מודיעין',
+};
 
-const PKGS=[
-  {name:'חבילת בסיס',   price:'₪990',   desc:'הקלטה מקצועית · עריכה · קובץ WAV/MP3'},
-  {name:'חבילת Silver', price:'₪1,480', desc:'Melodyne · הכוונה · חימום קולי · תמונה מהסשן'},
-  {name:'חבילת VIP 👑', price:'₪2,380', desc:'Silver + קליפ וידאו 4K · 2 זוויות · עריכה מלאה'},
-];
-
-const HYPE=[
-  [0,0,  'האולפן מחכה לך מהיום הראשון 🎙️'],
-  [1,1,  'יום אחד עבר... המיקרופון כבר מכוון 🎤'],
-  [2,7,  '{n} ימים עברו - האנרגיה עדיין טרייה 🔥'],
-  [8,30, 'המיקרופון כבר מכוון, אנחנו מחכים לקול שלך... {n} ימים עברו'],
-  [31,90,'כבר {n} ימים! הגיע הזמן לקבוע תאריך 📅'],
-  [91,180,'האולפן שלנו פתוח - רק בשבילך. עברו {n} ימים 🎚️'],
-  [181,364,'נותרו {days} ימים לתוקף - אל תחכה עוד ⏳'],
-  [365,9999,'השובר עומד לפוג - צור קשר עכשיו! 🚨'],
-];
-
-const CL=[
-  {tab:0,icon:'😴',t:'ישנת לפחות 7–8 שעות',d:'הקול שלך זקוק לשינה כדי להיות גמיש ומלא'},
-  {tab:0,icon:'💧',t:'שתית מים בשפע',d:'הידרציה מלאה = מיתרי קול בריאים ומגיבים'},
-  {tab:0,icon:'🥛',t:'ללא מוצרי חלב 3 שעות לפני',d:'חלב יוצר ריר ומפריע לקול'},
-  {tab:1,icon:'📝',t:'הבאת את המילים',d:'מודפס או בטלפון - להיות מוכן לגמרי'},
-  {tab:1,icon:'🎵',t:'אימנת את השיר לפחות 3 פעמים',d:'לחן, מילים וביטחון - בקול, לא בלב'},
-  {tab:1,icon:'⚡',t:'מגיע עם אנרגיה חיובית',d:'האנרגיה שלך נשמעת בהקלטה. תגיע מוכן להתרגש.'},
-];
-
-/* ════════════════════════════════════════════
+/* ══════════════════════════════════════
    STATE
-════════════════════════════════════════════ */
-const $=id=>document.getElementById(id);
-let D=null; // decoded data
-let audioPlaying=false;
-let clDone=new Set();
-let activeTab=0;
+══════════════════════════════════════ */
+const S = {
+  tpl:0, pkg:1,
+  toName:'', fromName:'', datetime:'', address:CFG.STUDIO, message:'',
+  code:'', projectId: makeId(), hidePrice: false
+};
 
-/* ════════════════════════════════════════════
-   DECODE
-════════════════════════════════════════════ */
-function dec(b64){
-  try{
-    const a=JSON.parse(decodeURIComponent(escape(atob(b64))));
-    return{tpl:+a[0]||0,pkg:+a[1]||1,toName:a[2]||'',salutation:a[3]||'',
-      fromName:a[4]||'',fromRole:a[5]||'',ltrDate:a[6]||'',
-      address:a[7]||'',vDate:a[8]||'',message:a[9]||'',
-      contribs:a[10]?a[10].split('|').filter(Boolean):[],
-      hidePrice:a[11]===1,
-      prepVideo:a[12]||'',roughMix:a[13]||'',
-      galImg1:a[14]||'',galImg2:a[15]||'',galAudio:a[16]||'',
-      projectId:a[17]||'',issueDate:a[18]||new Date().toISOString(),
-      password:a[19]||''};
-  }catch(e){return null;}
+function makeId() {
+  const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from({length:4}, () => c[Math.floor(Math.random()*c.length)]).join('');
 }
 
-/* ════════════════════════════════════════════
-   PASSWORD CHECK
-════════════════════════════════════════════ */
-function checkPwd(){
-  if(!D){toast('שגיאה: אין נתוני שובר');return;}
-  const v=$('pwdInput').value.trim().toUpperCase();
-  const expected=(D.password||'').toUpperCase();
-  if(!expected||v===expected){
-    $('pwdGate').classList.add('gone');
-    $('content').classList.add('on');
-    populateGate();
+function getCode() {
+  const n = (S.toName||'YKR').replace(/\s/g,'').substring(0,3).toUpperCase()
+             .replace(/[^A-Z]/g, 'X');
+  return `${n}-${new Date().getFullYear()}-${S.projectId}`;
+}
+
+/* ══════════════════════════════════════
+   PRESETS
+══════════════════════════════════════ */
+const PRESETS = {
+  bat: n => `${n||'היקרה'} שלנו,\nהיום את עולה לתורה ונהפכת לבת מצווה.\nהפקנו לך חוויית הקלטה שלא תשכחי - כי הקול שלך ראוי להישמע בעולם ✨`,
+  bar: n => `${n||'היקר'} שלנו,\nמזל טוב על בר המצווה!\nהגיע הזמן לקחת את הקול שלך לאולפן ולהקליט משהו שיישאר לנצח 🎙`,
+  bday: n => `ל${n||'יקרה'}שלי,\nיום הולדת שמח! 🎂\nבחרתי לתת לך את הדבר הכי מיוחד שידעתי - הקלטה שלך, בהפקה של יקיר כהן.`,
+  love: n => `${n||'אהובי/אהובתי'},\nהעולם שלי רועם כשאת/ה שר/ת.\nרצית שהקול שלך ייגע בלבבות - עכשיו יש לך את ההזדמנות 💕`,
+  pro: n => `${n||''},\nניתן לך שובר זה בהכרת כישרונך המוזיקלי.\nמוזמן/ת לאולפן לחוויית הקלטה מקצועית עם יקיר כהן 🎯`,
+};
+
+function loadPr(k) {
+  document.getElementById('message').value = PRESETS[k](document.getElementById('toName').value);
+  syncMsg();
+}
+
+/* ══════════════════════════════════════
+   SYNC & RENDER
+══════════════════════════════════════ */
+function syncState() {
+  S.toName   = document.getElementById('toName').value;
+  S.fromName = document.getElementById('fromName').value;
+  S.datetime = document.getElementById('datetime').value;
+  S.address  = document.getElementById('address').value;
+  S.message  = document.getElementById('message').value;
+}
+
+function syncMsg() {
+  S.message = document.getElementById('message').value;
+  const l = S.message.length;
+  const el = document.getElementById('cc');
+  el.textContent = `${l} / 400`;
+  el.className = 'ccount' + (l > 380 ? ' over' : l > 340 ? ' warn' : '');
+  render();
+}
+
+function selTpl(n) {
+  S.tpl = n;
+  document.querySelectorAll('.tc').forEach((c,i) => c.classList.toggle('on', i===n));
+  render();
+}
+
+function selPkg(n) {
+  S.pkg = n;
+  document.querySelectorAll('.pc').forEach((c,i) => c.classList.toggle('on', i===n));
+  document.getElementById('payLinkBtn').href = CFG.PAY_LINKS[n] || '#';
+  render();
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function render() {
+  syncState();
+  const p = CFG.PKGS[S.pkg];
+  const bg = ['vbg0','vbg1','vbg2','vbg3','vbg4'][S.tpl];
+  const name = S.toName || 'שמך כאן';
+  document.getElementById('vPrev').innerHTML = buildVoucherHTML(bg, name, p, S);
+}
+
+function buildVoucherHTML(bg, name, p, s) {
+  return `
+  <div class="voucher ${bg}">
+    <div class="v-bdr"></div>
+    <div class="v-cnr tl"></div><div class="v-cnr tr"></div>
+    <div class="v-cnr bl"></div><div class="v-cnr br"></div>
+    <div class="v-hd">
+      <div class="v-logo">
+        <div class="v-mic-ico">🎙</div>
+        <div class="v-brand">יקיר כהן<small>PRODUCTIONS</small></div>
+      </div>
+      <div class="v-badge">${esc(p.name)}</div>
+    </div>
+    <div class="v-body">
+      <div class="v-tolbl">שובר מתנה עבור</div>
+      <div class="v-name">${esc(name)}</div>
+      <div class="v-pkgname">${esc(p.name)} · ${esc(p.price)}</div>
+      <div class="v-pkgdesc">${esc(p.desc)}</div>
+      ${s.message ? `<div class="v-msg">${esc(s.message).replace(/\n/g,'<br>')}</div>` : ''}
+    </div>
+    <div class="v-ft">
+      <div class="v-meta">
+        ${s.datetime ? `📅 ${esc(s.datetime)}<br>` : ''}
+        ${s.address  ? `📍 ${esc(s.address)}`  : ''}
+      </div>
+      ${s.fromName ? `<div class="v-from"><span class="v-fromlbl">מאת</span><div class="v-fromname">${esc(s.fromName)}</div></div>` : ''}
+    </div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════
+   PAYMENT FLOW
+══════════════════════════════════════ */
+function openPay() {
+  syncState();
+  document.getElementById('payLinkBtn').href = CFG.PAY_LINKS[S.pkg] || '#';
+  document.getElementById('payModal').classList.add('open');
+  setStep(2);
+}
+
+function confirmPay() {
+  const code = document.getElementById('confCode').value.trim();
+  if (!code) { toast('הדבק קוד אישור מחשבונית ירוקה'); return; }
+  S.code = code;
+  document.getElementById('payModal').classList.remove('open');
+  openShare(code);
+}
+
+function skipPay() {
+  S.code = getCode();
+  document.getElementById('payModal').classList.remove('open');
+  openShare(S.code);
+}
+
+/* ══════════════════════════════════════
+   SHARE FLOW
+══════════════════════════════════════ */
+function openShare(code) {
+  setStep(3);
+  document.getElementById('codeDisp').textContent = code;
+  document.getElementById('s-sub').textContent =
+    `שובר עבור ${S.toName||'הנמען'} · ${CFG.PKGS[S.pkg].price}`;
+  document.getElementById('shareOverlay').classList.add('open');
+}
+
+function closeShare() {
+  document.getElementById('shareOverlay').classList.remove('open');
+  setStep(1);
+}
+
+function getShareURL() {
+  const d = btoa(encodeURIComponent(JSON.stringify({
+    tpl:S.tpl, pkg:S.pkg, toName:S.toName, fromName:S.fromName,
+    datetime:S.datetime, address:S.address, message:S.message,
+    code:S.code||getCode(), id:S.projectId, hp:S.hidePrice?1:0
+  })));
+  const base = location.origin + location.pathname.replace(/[^/]*$/, CFG.VIEW_FILE);
+  return `${base}?d=${d}`;
+}
+
+/* יקיר שולח - פותח WA אל עצמו */
+function shareYakir() {
+  const url = getShareURL();
+  const p = CFG.PKGS[S.pkg];
+  const code = S.code || getCode();
+  const msg = `🎁 *שובר מתנה מוכן לשליחה*\nיקיר כהן הפקות\n\n👤 עבור: *${S.toName||'הנמען'}*\n💎 ${p.name} · ${p.price}\n🔑 קוד: \`${code}\`\n${S.datetime ? `📅 ${S.datetime}\n` : ''}${S.address ? `📍 ${S.address}\n` : ''}\n🎁 קישור לשובר:\n${url}\n\n_יקיר כהן הפקות_`;
+  window.open(`https://wa.me/${CFG.WA_YAKIR}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+/* הקונה שולח - Native Share (נייד) / WA (דסקטופ) */
+function shareBuyer() {
+  const url = getShareURL();
+  const p = CFG.PKGS[S.pkg];
+  const code = S.code || getCode();
+  const msg = `🎁 *יש לך הפתעה מיוחדת!*\n\nהכינו לך שובר הקלטה בסטודיו של יקיר כהן 🎤\n\n${p.name} · ${p.price}\n\n✨ לחץ לפתיחה:\n${url}\n\n🔑 הסיסמה: \`${code}\``;
+  
+  if (navigator.share) {
+    navigator.share({
+      title: `🎁 שובר מתנה עבור ${S.toName||''}`,
+      text: msg,
+      url: url
+    }).catch(() => {});
   } else {
-    $('pgErr').classList.add('show');
-    $('pwdInput').value='';
-    setTimeout(()=>$('pgErr').classList.remove('show'),2800);
-    if(window.navigator.vibrate)window.navigator.vibrate(100);
-  }
-}
-
-/* ════════════════════════════════════════════
-   POPULATE GATE SCREEN
-════════════════════════════════════════════ */
-function populateGate(){
-  if(!D)return;
-  if(D.fromName){
-    $('gsSenderBadge').style.display='flex';
-    $('gsSenderName').textContent=D.fromName;
-  }
-}
-
-/* ════════════════════════════════════════════
-   AMBIENT BACKGROUND PARTICLES
-════════════════════════════════════════════ */
-function initAmbient(){
-  const cv=$('ambientCanvas');
-  const ctx=cv.getContext('2d');
-  let W,H,pts=[];
-  function resize(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;}
-  function mkPt(){return{
-    x:Math.random()*W,y:Math.random()*H,
-    r:Math.random()*2.2+.4,
-    vx:(Math.random()-.5)*.18,vy:(Math.random()-.5)*.18,
-    o:Math.random()*.35+.05,
-    color:Math.random()>.7?'200,16,46':'26,26,26'
-  };}
-  function init(){resize();pts=Array.from({length:55},mkPt);}
-  function draw(){
-    ctx.clearRect(0,0,W,H);
-    pts.forEach(p=>{
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle=`rgba(${p.color},${p.o})`;
-      ctx.fill();
-      p.x+=p.vx;p.y+=p.vy;
-      if(p.x<-5||p.x>W+5||p.y<-5||p.y>H+5){Object.assign(p,mkPt());p.x=Math.random()*W;p.y=Math.random()*H;}
+    /* Fallback: copy + open WA */
+    navigator.clipboard.writeText(msg).then(() => {
+      toast('✅ הודעה הועתקה! פותח וואטסאפ...');
+      setTimeout(() => window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank'), 700);
+    }).catch(() => {
+      window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
     });
-    requestAnimationFrame(draw);
   }
-  window.addEventListener('resize',resize);
-  init();draw();
 }
 
-/* ════════════════════════════════════════════
-   REVEAL LETTER
-════════════════════════════════════════════ */
-let revealed=false;
-function revealLetter(){
-  if(revealed)return;revealed=true;
-  if(window.navigator.vibrate)window.navigator.vibrate(40);
-  const gate=$('gateScreen');
-  gate.style.transition='opacity .5s ease,transform .5s ease';
-  gate.style.opacity='0';gate.style.transform='scale(.97)';
-  setTimeout(()=>{gate.classList.add('gone');},480);
-  const page=$('letterPage');
-  page.classList.add('vis');
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    page.classList.add('revealed');
-    setTimeout(()=>page.scrollIntoView({behavior:'smooth',block:'start'}),100);
-  }));
-  // Start audio if roughMix exists (user gesture unlocks it)
-  const aud=$('rxAudio');
-  if(aud&&aud.src&&aud.src!==location.href)aud.load();
-  reportHeight();
+function copyCode() {
+  const code = document.getElementById('codeDisp').textContent;
+  navigator.clipboard.writeText(code).then(() => toast('🔑 קוד הועתק!'));
 }
 
-/* ════════════════════════════════════════════
-   POPULATE RECEIVER PAGE
-════════════════════════════════════════════ */
-function populateReceiver(){
-  if(!D)return;
-  const pkg=PKGS[D.pkg]||PKGS[1];
-
-  // Letter
-  $('rxDate').textContent=D.ltrDate||'';
-  $('rxLoc').textContent=D.address||'';
-  $('rxSalutation').textContent=D.salutation||(D.toName?`${D.toName},`:'יקירי/ה,');
-
-  // Message: detect if it's from STT (starts with special marker) or regular
-  const msg=D.message||'';
-  if(msg.startsWith('🎤:')){
-    $('sttBubble').style.display='block';
-    $('sttBubbleText').textContent=msg.replace('🎤:','').trim();
-    $('rxMessage').style.display='none';
-  } else {
-    $('rxMessage').textContent=msg;
-  }
-
-  $('rxFromName').textContent=D.fromName||'';
-  $('rxFromRole').textContent=D.fromRole||'';
-
-  // Contributors
-  if(D.contribs&&D.contribs.length){
-    $('rxContribs').style.display='block';
-    $('rxContribList').innerHTML=D.contribs.map(c=>`<div class="contrib-pill">${c}</div>`).join('');
-    const vc=$('rxVoucherContribs');
-    vc.style.display='flex';vc.style.flexWrap='wrap';vc.style.gap='4px';
-    vc.innerHTML=D.contribs.map(c=>`<span style="background:#f4f4f4;border:1px solid #e8e8e8;border-radius:100px;padding:2px 8px;font-size:.62rem;color:#3a3a3a">${c}</span>`).join('');
-  }
-
-  // Voucher card
-  $('rxPkgName').textContent=pkg.name;
-  $('rxPkgPrice').textContent=pkg.price;
-  $('rxPkgPrice').className='vc-price'+(D.hidePrice?' hidden':'');
-  $('rxPkgDesc').textContent=pkg.desc;
-  $('rxToName').textContent=D.toName||'-';
-  $('rxFromNameCard').textContent=D.fromName||'-';
-  $('rxVDate').textContent=D.vDate||'-';
-  $('rxPid').textContent=D.projectId||'';
-  $('rxAddr').textContent=D.address||'עמק איילון 34, מודיעין';
-  $('rxLocText').textContent=D.address||'עמק איילון 34, מודיעין';
-  const wq=encodeURIComponent(D.address||'אולפני יקיר כהן מודיעין');
-  $('rxWaze').href=`https://waze.com/ul?q=${wq}`;
-  $('rxLocWaze').href=`https://waze.com/ul?q=${wq}`;
-
-  // Instagram
-  if(D.prepVideo)$('igCard').href=D.prepVideo;
-  else $('igCard').style.display='none';
-
-  // Hype
-  initHype();
-
-  // Audio
-  const mixUrl=driveDirect(D.roughMix);
-  if(mixUrl){
-    $('audioBlock').style.display='block';
-    $('rxAudio').src=mixUrl;
-    $('apTitle').textContent=`Rough Mix - ${D.toName||'Preview'}`;
-    initAudioPlayer();
-    buildApWave();
-  }
-
-  // Checklist
-  buildChecklist();
-
-  // Gallery
-  buildGallery();
-
-  // WA desc
-  $('waCtaDesc').textContent=`"היי יקיר, קיבלתי שובר ${pkg.name} מ-${D.fromName||'-'}!"`;
+function copyLink() {
+  const url = getShareURL();
+  navigator.clipboard.writeText(url).then(() => toast('🔗 קישור הועתק!'))
+    .catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = url; document.body.appendChild(ta);
+      ta.select(); document.execCommand('copy');
+      document.body.removeChild(ta); toast('🔗 קישור הועתק!');
+    });
 }
 
-/* ════════════════════════════════════════════
-   HYPE COUNTER
-════════════════════════════════════════════ */
-function initHype(){
-  const issued=new Date(D.issueDate||new Date());
-  const expiry=new Date(issued);expiry.setFullYear(expiry.getFullYear()+1);
-  const now=new Date();
-  const daysPassed=Math.max(0,Math.floor((now-issued)/86400000));
-  const daysLeft=Math.max(0,Math.floor((expiry-now)/86400000));
-  const pct=Math.min(100,(daysPassed/365)*100);
-  $('hypeDays').textContent=daysPassed;
-  $('hypeFill').style.width=pct+'%';
-  let msg='';
-  for(const[mn,mx,tmpl] of HYPE){
-    if(daysPassed>=mn&&daysPassed<=mx){
-      msg=tmpl.replace('{n}',daysPassed).replace('{days}',daysLeft);break;
-    }
-  }
-  $('hypeMsg').textContent=msg;
-}
+/* ══════════════════════════════════════
+   IMAGE GENERATION - Native Canvas (no html2canvas!)
+══════════════════════════════════════ */
+const TPL_C = [
+  // 0: זהב קלאסי
+  { bg1:'#060412', bg2:'#0e0b28', gold:'#c9a84c', text:'#ede8ff', muted:'rgba(237,232,255,0.5)', border:'rgba(201,168,76,0.28)' },
+  // 1: בת מצווה
+  { bg1:'#12062a', bg2:'#2d0d4e', gold:'#d4a8e8', text:'#f0e8ff', muted:'rgba(240,232,255,0.5)', border:'rgba(212,168,232,0.28)' },
+  // 2: בר מצווה
+  { bg1:'#071022', bg2:'#0e2040', gold:'#c9a84c', text:'#e8f0ff', muted:'rgba(232,240,255,0.5)', border:'rgba(201,168,76,0.28)' },
+  // 3: יום הולדת
+  { bg1:'#1a0c00', bg2:'#3d1f00', gold:'#f0b84c', text:'#fff5e8', muted:'rgba(255,245,232,0.5)', border:'rgba(240,184,76,0.28)' },
+  // 4: מינימל
+  { bg1:'#f5f0e8', bg2:'#ede4d0', gold:'#6b4800', text:'#1a0c00', muted:'rgba(26,12,0,0.45)', border:'rgba(107,72,0,0.18)' },
+];
 
-/* ════════════════════════════════════════════
-   GOOGLE DRIVE CONVERTER
-════════════════════════════════════════════ */
-function driveDirect(url){
-  if(!url)return'';
-  const m=url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  return m?`https://drive.google.com/uc?export=download&id=${m[1]}`:url;
-}
+async function dlImg(fmt) {
+  document.getElementById('imgMenu').classList.remove('open');
+  toast('⏳ מייצר תמונה...');
+  await document.fonts.ready;
 
-/* ════════════════════════════════════════════
-   AUDIO PLAYER
-════════════════════════════════════════════ */
-function initAudioPlayer(){
-  const aud=$('rxAudio');
-  aud.addEventListener('timeupdate',()=>{
-    if(!aud.duration)return;
-    const p=(aud.currentTime/aud.duration)*100;
-    $('apFill').style.width=p+'%';
-    $('apTime').textContent=`${fmt(aud.currentTime)} / ${fmt(aud.duration)}`;
+  const sizes = { standard:{w:1200,h:800}, story:{w:1080,h:1920}, square:{w:1080,h:1080} };
+  const { w, h } = sizes[fmt] || sizes.standard;
+  const cv = document.createElement('canvas');
+  cv.width = w; cv.height = h;
+  const ctx = cv.getContext('2d');
+  ctx.direction = 'rtl';
+
+  const c = TPL_C[S.tpl] || TPL_C[0];
+  const p = CFG.PKGS[S.pkg];
+  const pd = w * 0.055; // padding
+
+  /* Background */
+  const bgG = ctx.createLinearGradient(0,0,w,h);
+  bgG.addColorStop(0, c.bg1); bgG.addColorStop(1, c.bg2);
+  ctx.fillStyle = bgG; ctx.fillRect(0,0,w,h);
+
+  /* Radial glow */
+  const gl = ctx.createRadialGradient(w*.18,h*.18,0,w*.18,h*.18,w*.6);
+  gl.addColorStop(0,'rgba(201,168,76,0.07)'); gl.addColorStop(1,'transparent');
+  ctx.fillStyle = gl; ctx.fillRect(0,0,w,h);
+
+  /* Outer border */
+  ctx.strokeStyle = c.border; ctx.lineWidth = 2;
+  ctx.strokeRect(pd, pd, w-pd*2, h-pd*2);
+
+  /* Corner brackets */
+  const cs = w * 0.038;
+  ctx.strokeStyle = c.gold; ctx.lineWidth = w * 0.003;
+  [
+    [pd, pd, 1, 1], [w-pd, pd, -1, 1],
+    [pd, h-pd, 1, -1], [w-pd, h-pd, -1, -1]
+  ].forEach(([x,y,dx,dy]) => {
+    ctx.beginPath();
+    ctx.moveTo(x, y + dy*cs); ctx.lineTo(x,y); ctx.lineTo(x + dx*cs, y);
+    ctx.stroke();
   });
-  aud.addEventListener('ended',()=>{audioPlaying=false;updatePlayIcon();pauseWave();});
-}
-function fmt(s){const m=Math.floor(s/60),sec=Math.floor(s%60);return`${m}:${sec.toString().padStart(2,'0')}`;}
-function toggleAudio(){
-  const aud=$('rxAudio');
-  if(audioPlaying){aud.pause();audioPlaying=false;pauseWave();}
-  else{aud.play().catch(()=>{});audioPlaying=true;playWave();}
-  updatePlayIcon();
-}
-function updatePlayIcon(){
-  $('apPlayIcon').innerHTML=audioPlaying
-    ?'<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'
-    :'<path d="M8 5v14l11-7z"/>';
-}
-function seekAudio(e){
-  const aud=$('rxAudio');if(!aud.duration)return;
-  const r=$('apTrack').getBoundingClientRect();
-  aud.currentTime=((e.clientX-r.left)/r.width)*aud.duration;
-}
-function buildApWave(){
-  const w=$('apWave');if(!w)return;
-  for(let i=0;i<18;i++){
-    const d=document.createElement('div');
-    d.className='ap-wv paused';
-    d.style.cssText=`height:${3+Math.random()*10}px;animation-delay:${i*.07}s;animation-duration:${.6+Math.random()*.6}s`;
-    w.appendChild(d);
-  }
-}
-function playWave(){document.querySelectorAll('.ap-wv').forEach(d=>d.classList.remove('paused'));}
-function pauseWave(){document.querySelectorAll('.ap-wv').forEach(d=>d.classList.add('paused'));}
 
-/* ════════════════════════════════════════════
-   CHECKLIST WITH TABS
-════════════════════════════════════════════ */
-function buildChecklist(){
-  [0,1].forEach(tab=>{
-    const items=CL.filter(c=>c.tab===tab);
-    $(`clPanel${tab}`).innerHTML=items.map((item,i)=>{
-      const idx=CL.indexOf(item);
-      return`<div class="cl-item" id="cli${idx}" onclick="toggleCl(${idx})">
-        <div class="cl-box"><span class="cl-tick">✓</span></div>
-        <div class="cl-txt"><h5>${item.icon} ${item.t}</h5><p>${item.d}</p></div>
-      </div>`;
-    }).join('');
+  const tx = w - pd - w*0.045; // right-side x for RTL text
+  let y = pd + h * 0.1;
+
+  /* Mic */
+  ctx.font = `${w*0.055}px sans-serif`;
+  ctx.fillText('🎙', pd + w*0.04, y);
+
+  /* Brand (right-aligned) */
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = c.gold;
+  ctx.font = `700 ${w*0.024}px 'Rajdhani','Heebo',sans-serif`;
+  ctx.fillText('יקיר כהן הפקות', tx, y - w*0.01);
+  ctx.fillStyle = c.muted;
+  ctx.font = `${w*0.017}px 'Rajdhani','Heebo',sans-serif`;
+  ctx.fillText('PRODUCTIONS', tx, y + w*0.018);
+
+  /* Package badge */
+  const bw = w * 0.22; const bh = h * 0.055;
+  const bx = pd + w*0.04; const by = y - bh/2;
+  ctx.fillStyle = `rgba(201,168,76,0.1)`;
+  rr(ctx, bx, by, bw, bh, bh/2); ctx.fill();
+  ctx.strokeStyle = c.border; ctx.lineWidth = 1;
+  rr(ctx, bx, by, bw, bh, bh/2); ctx.stroke();
+  ctx.fillStyle = c.gold;
+  ctx.font = `700 ${w*0.019}px 'Rajdhani','Heebo',sans-serif`;
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText(p.name, bx + bh*0.4, by + bh/2);
+
+  y = h * (fmt === 'story' ? 0.28 : 0.33);
+
+  /* "שובר מתנה עבור" */
+  ctx.fillStyle = c.muted;
+  ctx.font = `${w*0.022}px 'Heebo',sans-serif`;
+  ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText('שובר מתנה עבור', tx, y);
+
+  /* Recipient name */
+  const nSize = Math.min(w * 0.092, h * (fmt==='story'?0.07:0.12));
+  ctx.fillStyle = c.gold;
+  ctx.font = `900 ${nSize}px 'Frank Ruhl Libre','Heebo',serif`;
+  y += nSize * 1.1;
+  ctx.fillText(S.toName || 'שמך כאן', tx, y);
+
+  /* Package */
+  y += w * 0.055;
+  ctx.fillStyle = c.text;
+  ctx.font = `700 ${w*0.028}px 'Heebo',sans-serif`;
+  ctx.fillText(`${p.name} · ${p.price}`, tx, y);
+
+  /* Desc */
+  y += w * 0.038;
+  ctx.fillStyle = c.muted;
+  ctx.font = `${w*0.02}px 'Heebo',sans-serif`;
+  ctx.fillText(p.desc, tx, y);
+
+  /* Message */
+  if (S.message) {
+    y += w * 0.04;
+    ctx.strokeStyle = c.border; ctx.lineWidth = w*0.004;
+    ctx.beginPath();
+    ctx.moveTo(tx - w*0.003, y - w*0.01);
+    ctx.lineTo(tx - w*0.003, y + h*0.16);
+    ctx.stroke();
+    ctx.fillStyle = c.muted;
+    ctx.font = `italic ${w*0.021}px 'Frank Ruhl Libre','Heebo',serif`;
+    const lines = wrapT(ctx, S.message, w * 0.7);
+    const lineH = w * 0.032;
+    lines.slice(0,5).forEach((line,i) => {
+      ctx.fillText(line, tx - w*0.025, y + i*lineH);
+    });
+    y += Math.min(lines.length,5)*lineH + w*0.025;
+  }
+
+  /* Footer line */
+  const fy = h - pd - h*(fmt==='story'?0.08:0.1);
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(pd+w*0.04, fy); ctx.lineTo(w-pd-w*0.04, fy); ctx.stroke();
+
+  ctx.fillStyle = c.muted;
+  ctx.font = `${w*0.019}px 'Heebo',sans-serif`;
+  ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
+  let fy2 = fy + h*0.04;
+  if (S.datetime) { ctx.fillText(`📅 ${S.datetime}`, tx, fy2); fy2 += h*0.03; }
+  if (S.address)  { ctx.fillText(`📍 ${S.address}`,  tx, fy2); }
+
+  if (S.fromName) {
+    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = c.muted;
+    ctx.font = `${w*0.015}px 'Rajdhani','Heebo',sans-serif`;
+    ctx.fillText('מאת', pd+w*0.04, fy + h*0.03);
+    ctx.fillStyle = c.gold;
+    ctx.font = `${w*0.022}px 'Frank Ruhl Libre','Heebo',serif`;
+    ctx.fillText(S.fromName, pd+w*0.04, fy + h*0.06);
+  }
+
+  /* Download */
+  const a = document.createElement('a');
+  a.href = cv.toDataURL('image/png');
+  a.download = `yakir-voucher-${(S.toName||'guest').replace(/\s/g,'-')}-${fmt}.png`;
+  a.click();
+  toast('✅ תמונה נשמרה!');
+}
+
+function rr(ctx,x,y,w,h,r){
+  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);
+  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);
+  ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+}
+
+function wrapT(ctx, text, maxW) {
+  const words=text.split(' '); const lines=[]; let line='';
+  words.forEach(w=>{
+    const t=line?`${line} ${w}`:w;
+    if(ctx.measureText(t).width>maxW && line){ lines.push(line);line=w; }
+    else line=t;
   });
-  updateClProgress();
-}
-function toggleCl(i){
-  const el=$(`cli${i}`);
-  el.classList.toggle('done');
-  if(el.classList.contains('done'))clDone.add(i);
-  else clDone.delete(i);
-  if(window.navigator.vibrate)window.navigator.vibrate(20);
-  updateClProgress();
-}
-function updateClProgress(){
-  const total=CL.length,done=clDone.size;
-  $('clProgText').textContent=`${done} / ${total}`;
-  $('clProgFill').style.width=(done/total*100)+'%';
-}
-function switchTab(t){
-  activeTab=t;
-  document.querySelectorAll('.cl-tab').forEach((el,i)=>el.classList.toggle('on',i===t));
-  document.querySelectorAll('.cl-panel').forEach((el,i)=>el.classList.toggle('on',i===t));
+  if(line)lines.push(line);
+  return lines;
 }
 
-/* ════════════════════════════════════════════
-   WHATSAPP BOOK
-════════════════════════════════════════════ */
-function bookWA(){
-  if(!D)return;
-  const pkg=PKGS[D.pkg]||PKGS[1];
-  const msg=`היי יקיר 👋\nקיבלתי שובר ${pkg.name} מ-${D.fromName||'-'}!\nמזהה: ${D.projectId}\nאני רוצה לקבוע סשן 🎤`;
-  window.open(`https://wa.me/${WA_YAKIR}?text=${encodeURIComponent(msg)}`,'_blank');
-}
+/* ══════════════════════════════════════
+   UTILITIES
+══════════════════════════════════════ */
+function toggleImgMenu(){ document.getElementById('imgMenu').classList.toggle('open'); }
 
-/* ════════════════════════════════════════════
-   GALLERY
-════════════════════════════════════════════ */
-function buildGallery(){
-  if(!D)return;
-  const has=D.galImg1||D.galImg2||D.galAudio;
-  if(!has)return;
-  $('galSection').style.display='block';
-  const g=$('galGrid');g.innerHTML='';
-  if(D.message){
-    const mc=document.createElement('div');mc.className='gal-orig';
-    mc.innerHTML=`<label>המכתב המקורי</label><p>${D.message}</p>`;
-    g.appendChild(mc);
+document.addEventListener('click', e => {
+  if (!e.target.closest('#imgMenu') && !e.target.closest('[onclick="toggleImgMenu()"]')) {
+    document.getElementById('imgMenu')?.classList.remove('open');
   }
-  if(D.galImg1){const d=document.createElement('div');d.className='gal-img';d.innerHTML=`<img src="${D.galImg1}" loading="lazy">`;g.appendChild(d);}
-  if(D.galImg2){const d=document.createElement('div');d.className='gal-img';d.innerHTML=`<img src="${D.galImg2}" loading="lazy">`;g.appendChild(d);}
-  if(D.galAudio){
-    const ac=document.createElement('div');ac.className='gal-audio';
-    const src=driveDirect(D.galAudio);
-    ac.innerHTML=`<label>הקלטה סופית מהסשן 🎶</label><audio controls src="${src}"></audio>`;
-    g.appendChild(ac);
-  }
+});
+
+function printV() { window.print(); }
+
+function setStep(n) {
+  [1,2,3].forEach(i => {
+    const el = document.getElementById(`st${i}`);
+    el.classList.remove('active','done');
+    if (i < n) el.classList.add('done');
+    if (i === n) el.classList.add('active');
+  });
 }
 
-/* ════════════════════════════════════════════
-   SAVE STORY PNG
-════════════════════════════════════════════ */
-function saveStoryPNG(){
-  const vc=$('rxVoucher');
-  if(!vc){toast('אין שובר לשמירה');return;}
-  toast('⏳ יוצר פוסטר...');
-  html2canvas(vc,{scale:3,useCORS:true,backgroundColor:'#ffffff',allowTaint:true})
-    .then(cv=>{
-      const sc=document.createElement('canvas');
-      sc.width=1080;sc.height=1920;
-      const ctx=sc.getContext('2d');
-      // White background
-      ctx.fillStyle='#fafaf8';ctx.fillRect(0,0,1080,1920);
-      // Subtle red top bar
-      ctx.fillStyle='#c8102e';ctx.fillRect(0,0,1080,6);
-      // Center voucher
-      const r=Math.min(980/cv.width,1200/cv.height);
-      const w=cv.width*r,h=cv.height*r;
-      ctx.drawImage(cv,(1080-w)/2,(1920-h)/2,w,h);
-      const a=document.createElement('a');
-      a.href=sc.toDataURL('image/png');
-      a.download=`yakir-memory-${D?.toName||'voucher'}.png`;
-      a.click();toast('✅ פוסטר נשמר לגלריה!');
-    }).catch(()=>toast('⚠️ שגיאה בשמירה'));
+let toastTm;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTm);
+  toastTm = setTimeout(() => el.classList.remove('show'), 2800);
 }
 
-/* ════════════════════════════════════════════
-   TOAST
-════════════════════════════════════════════ */
-function toast(msg){
-  const el=$('toast');el.textContent=msg;el.classList.add('show');
-  clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),3200);
-}
-
-/* ════════════════════════════════════════════
-   IFRAME HEIGHT REPORTING
-════════════════════════════════════════════ */
-function reportHeight(){
-  const h=Math.max(document.body.scrollHeight,document.documentElement.scrollHeight);
-  window.parent.postMessage({frameHeight:h},'*');
-}
-const ro=new ResizeObserver(reportHeight);
-ro.observe(document.body);
-window.addEventListener('load',reportHeight);
-
-/* ════════════════════════════════════════════
+/* ══════════════════════════════════════
    INIT
-════════════════════════════════════════════ */
-(function init(){
-  // Ambient always running
-  initAmbient();
-
-  // Embedded mode
-  const params=new URLSearchParams(location.search);
-  if(params.get('embedded')==='true')document.body.classList.add('embedded');
-
-  // Decode data
-  const raw=params.get('data');
-  if(!raw){
-    // No data - show error
-    document.getElementById('pwdGate').innerHTML=`
-      <img class="pg-logo" src="${LOGO}" style="height:48px" onerror="this.style.opacity='.3'">
-      <h2 style="font-family:var(--ffs);font-size:1.4rem;text-align:center;color:var(--ink)">שגיאה: לינק לא תקין</h2>
-      <p style="font-size:.84rem;color:var(--mid);text-align:center;max-width:260px;line-height:1.6">
-        הלינק הזה חסר נתונים. בקש מהשולח לשלוח שוב את הלינק המלא.
-      </p>`;
-    return;
-  }
-  D=dec(raw);
-  if(!D){
-    document.getElementById('pwdGate').innerHTML=`
-      <img class="pg-logo" src="${LOGO}" style="height:48px" onerror="this.style.opacity='.3'">
-      <h2 style="font-family:var(--ffs);font-size:1.4rem;text-align:center;color:var(--ink)">שגיאה בפענוח</h2>
-      <p style="font-size:.84rem;color:var(--mid);text-align:center;max-width:260px;line-height:1.6">
-        הלינק פגום. בקש מהשולח לשלוח שוב.
-      </p>`;
-    return;
-  }
-
-  // If no password set - skip gate
-  if(!D.password){
-    $('pwdGate').classList.add('gone');
-    $('content').classList.add('on');
-    populateGate();
-    populateReceiver();
-    return;
-  }
-
-  // Show password gate, populate receiver after success
-  // Override checkPwd to also call populateReceiver
-  const origCheckPwd=checkPwd;
-  window.checkPwd=function(){
-    const v=$('pwdInput').value.trim().toUpperCase();
-    const expected=(D.password||'').toUpperCase();
-    if(!expected||v===expected){
-      $('pwdGate').classList.add('gone');
-      $('content').classList.add('on');
-      populateGate();
-      populateReceiver();
-    } else {
-      $('pgErr').classList.add('show');
-      $('pwdInput').value='';
-      setTimeout(()=>$('pgErr').classList.remove('show'),2800);
-      if(window.navigator.vibrate)window.navigator.vibrate(100);
-    }
-  };
-})();
+══════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('address').value = CFG.STUDIO;
+  document.getElementById('payLinkBtn').href = CFG.PAY_LINKS[1];
+  render();
+});
 </script>
 </body>
 </html>
